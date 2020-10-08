@@ -1,0 +1,8 @@
+# Byte-compiled / optimized / DLL
+__pycache__/
+
+# Data files
+*.hdf5
+
+# Folders
+tests/
