@@ -1,8 +1,14 @@
 # Byte-compiled / optimized / DLL
 __pycache__/
+.idea/
 
 # Data files
 *.hdf5
 
 # Folders
 tests/
+
+# Individual files
+diagnostics/plots/paper_vortex.py
+diagnostics/plots/paper_spectra.py
+diagnostics/plots/paper_phase.py
