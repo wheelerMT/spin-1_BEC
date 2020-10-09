@@ -2,6 +2,8 @@ import h5py
 import numpy as np
 import numexpr as ne
 
+"""File that checks conservation of atom number and magnetisation for a given dataset."""
+
 
 def magnetisation(wfn_plus, wfn_0, wfn_minus, dxx=1, dyy=1):
     """Calculates transverse and longitudinal magnetisation for a spinor condensate."""

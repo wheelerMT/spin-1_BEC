@@ -2,7 +2,10 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import sqrt, pi, sin, cos
-from matplotlib import cm, colors
+from matplotlib import cm
+
+"""File for generating spherical harmonics from the wavefunction for a particular dataset."""
+# TODO: Fix scaling errors for the spherical harmonics.
 
 
 # Define harmonic grid:

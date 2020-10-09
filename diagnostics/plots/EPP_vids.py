@@ -5,6 +5,8 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import h5py
 import numexpr as ne
 
+"""File that generates density and spin expectation video plots for a given dataset specifically for the EPP phase."""
+
 
 def makeSpinMagExpectationVideo(filename):
     global cont

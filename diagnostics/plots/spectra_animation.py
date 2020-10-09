@@ -2,6 +2,8 @@ import h5py
 import matplotlib.pyplot as plt
 from matplotlib import animation
 
+"""File that generates an animated plot of various spectra."""
+
 
 def animate(i):
     """Animation function that plots spectra"""

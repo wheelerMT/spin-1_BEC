@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg')
 
+"""File that constructs the macroscopic phase (EPP phase only) and plots it for a given time of the dataset. Also 
+overlays the positions of the vortices in the system over the plot."""
+
 # Load in data:
 filename = 'frames/100kf_1024nomag'  # input('Enter data filename: ')
 data_file = h5py.File('../../data/{}.hdf5'.format(filename), 'r')

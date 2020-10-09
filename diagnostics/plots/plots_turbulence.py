@@ -5,6 +5,8 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import h5py
 import numexpr as ne
 
+"""Main plotting file for generating videos of density plots with or without spin expectation included."""
+
 
 def makeDensityVideo(filename):
     global cont_dens

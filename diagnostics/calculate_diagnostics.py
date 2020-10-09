@@ -4,6 +4,9 @@ import h5py
 import numpy as np
 import include.diag as diag
 
+"""File that calculates various diagnostics from the main dataset including spin vectors, spin expectation, mass current
+and pseudo-vorticity."""
+
 # ---------------------------------------------------------------------------------------------------------------------
 # Loading data
 # ---------------------------------------------------------------------------------------------------------------------

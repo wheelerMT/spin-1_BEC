@@ -5,6 +5,9 @@ import numpy as np
 from tabulate import tabulate
 matplotlib.use('TkAgg')
 
+"""File that generates a single plot of the density and spin expectation for a given dataset specifically for the 
+EPP phase."""
+
 # Load in data:
 filename = input('Enter data filename: ')
 data_file = h5py.File('../../data/{}.hdf5'.format(filename), 'r')

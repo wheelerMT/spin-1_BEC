@@ -4,6 +4,8 @@ import h5py
 from tabulate import tabulate
 matplotlib.use('TkAgg')
 
+"""File for plotting various spectra."""
+
 # Open required data:
 filename = input('Enter name of spectra file to open: ')
 data_file = h5py.File('../../data/{}.hdf5'.format(filename), 'r')
