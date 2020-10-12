@@ -21,9 +21,10 @@ x = cp.arange(-Mx, Mx) * dx
 y = cp.arange(-My, My) * dy
 X, Y = cp.meshgrid(x, y)  # Spatial meshgrid
 
-kx = cp.fft.fftshift(cp.arange(-Mx, Mx) * dkx)
-ky = cp.fft.fftshift(cp.arange(-My, My) * dky)
-Kx, Ky = cp.meshgrid((kx, ky))  # K-space meshgrid
+kx = cp.arange(-Mx, Mx) * dkx
+ky = cp.arange(-My, My) * dky
+Kx, Ky = cp.meshgrid(kx, ky)  # K-space meshgrid
+Kx, Ky = cp.fft.fftshift(Kx), cp.fft.fftshift(Ky)
 
 # Framework for wavefunction data
 psi_plus = cp.empty((Nx, Ny), dtype='complex64')
