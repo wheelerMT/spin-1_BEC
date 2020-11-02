@@ -68,7 +68,7 @@ if not fresh_simulation:
 else:
     # Euler angles
     alpha = 0.
-    beta = np.pi / 2 + 0.001
+    beta = np.pi / 2
     gamma = 0.
 
     atom_num = 1.6e9 / (Nx * Ny)
