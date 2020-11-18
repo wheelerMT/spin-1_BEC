@@ -11,7 +11,7 @@ modes and evolving in real time."""
 # --------------------------------------------------------------------------------------------------------------------
 Nx, Ny = 1024, 1024
 Mx, My = Nx // 2, Ny // 2  # Number of grid pts
-dx = dy = 0.5  # Grid spacing
+dx = dy = 1  # Grid spacing
 dkx = pi / (Mx * dx)
 dky = pi / (My * dy)  # K-space spacing
 len_x = Nx * dx  # Box length
@@ -58,10 +58,10 @@ if not fresh_simulation:
 
 # If it is a fresh simulation, generate the initial state:
 else:
-    atom_num = 4e8 / (Nx * Ny)
+    atom_num = 1.6e9 / (Nx * Ny)
 
     # Draw values of theta from Gaussian distribution:
-    np.random.seed(9971)
+    np.random.seed(9973)
     theta_k = cp.asarray(np.random.uniform(low=0, high=1, size=(Nx, Ny)) * 2 * np.pi)
 
     # Generate density array so that only certain modes are occupied:
