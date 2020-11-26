@@ -30,11 +30,10 @@ def calculate_vortices(wfn_plus, wfn_minus, grid_x, grid_y):
             phase_sum += phase_y[ii, jj] - phase_y[ii + 1, jj]
 
             # If sum of phase difference is 2pi or -2pi, take note of vortex position:
-            if np.round(abs(phase_sum), 4) == np.round(2 * np.pi, 4):
-                if phase_sum > 0:  # Vortex
-                    antivortex_pos.append(refine_positions([ii, jj], wfn, x_grid, y_grid))
-                elif phase_sum < 0:  # Anti-vortex
-                    vortex_pos.append(refine_positions([ii, jj], wfn, x_grid, y_grid))
+            if np.round(phase_sum, 4) == np.round(2 * np.pi, 4):
+                antivortex_pos.append(refine_positions([ii, jj], wfn, x_grid, y_grid))  # Vortex
+            elif np.round(phase_sum, 4) == np.round(-2 * np.pi, 4):
+                vortex_pos.append(refine_positions([ii, jj], wfn, x_grid, y_grid))  # Anti-vortex
 
         return vortex_pos, antivortex_pos
 
