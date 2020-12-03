@@ -6,13 +6,10 @@ import matplotlib.animation as animation
 # Load in data:
 filename = input('Enter data filename: ')
 data_file = h5py.File('../../data/{}.hdf5'.format(filename), 'r')
-diag_file = h5py.File('../../data/diagnostics/{}_diag.hdf5'.format(filename), 'r')
 
 psi_plus = data_file['wavefunction/psi_plus']
 psi_0 = data_file['wavefunction/psi_0']
 psi_minus = data_file['wavefunction/psi_minus']
-
-spin_expec_mag = diag_file['spin/spin_expectation']
 
 # Other variables:
 x, y = data_file['grid/x'], data_file['grid/y']
@@ -22,6 +19,12 @@ X, Y = np.meshgrid(x[:], y[:])
 # Loading time variables:
 Nt, dt, Nframe = np.array(data_file['time/Nt']), np.array(data_file['time/dt']), np.array(data_file['time/Nframe'])
 num_of_frames = psi_plus.shape[-1]
+
+# Calculate initial spin expectation:
+dens = abs(psi_plus[:, :, 0]) ** 2 + abs(psi_0[:, :, 0]) ** 2 + abs(psi_minus[:, :, 0]) ** 2
+F_perp = np.sqrt(2) * (np.conj(psi_plus[:, :, 0]) * psi_0[:, :, 0] + np.conj(psi_0[:, :, 0]) * psi_minus[:, :, 0])
+Fz = abs(psi_plus[:, :, 0]) ** 2 - abs(psi_minus[:, :, 0]) ** 2
+spin_expec_mag = np.sqrt(Fz ** 2 + abs(F_perp) ** 2) / dens
 
 # Set up figure:
 fig, ax = plt.subplots(1, 3, sharey=True, figsize=(10, 10))
@@ -38,7 +41,7 @@ cvals_spin = np.linspace(0, 1, 25, endpoint=True)
 # Initial frame plot:
 densPlus_plot = ax[0].contourf(X, Y, abs(psi_plus[:, :, 0]) ** 2, cvals_dens, cmap='gnuplot')
 densMinus_plot = ax[1].contourf(X, Y, abs(psi_minus[:, :, 0]) ** 2, cvals_dens, cmap='gnuplot')
-spin_plot = ax[2].contourf(X, Y, spin_expec_mag[:, :, 0], cvals_spin, cmap='PuRd')
+spin_plot = ax[2].contourf(X, Y, spin_expec_mag, cvals_spin, cmap='PuRd')
 cont = [densPlus_plot, densMinus_plot, spin_plot]
 
 # Set up color bars:
@@ -58,7 +61,14 @@ def animate(i):
 
     ax[0].contourf(X, Y, abs(psi_plus[:, :, i]) ** 2, cvals_dens, cmap='gnuplot')
     ax[1].contourf(X, Y, abs(psi_minus[:, :, i]) ** 2, cvals_dens, cmap='gnuplot')
-    ax[2].contourf(X, Y, spin_expec_mag[:, :, i], cvals_spin, cmap='PuRd')
+
+    # Calculate spin expectation:
+    dens = abs(psi_plus[:, :, i]) ** 2 + abs(psi_0[:, :, i]) ** 2 + abs(psi_minus[:, :, i]) ** 2
+    F_perp = np.sqrt(2) * (np.conj(psi_plus[:, :, i]) * psi_0[:, :, i] + np.conj(psi_0[:, :, i]) * psi_minus[:, :, i])
+    Fz = abs(psi_plus[:, :, i]) ** 2 - abs(psi_minus[:, :, i]) ** 2
+    spin_expec_mag = np.sqrt(Fz ** 2 + abs(F_perp) ** 2) / dens
+
+    ax[2].contourf(X, Y, spin_expec_mag, cvals_spin, cmap='PuRd')
 
     cont = [ax[0], ax[1], ax[2]]
     print('On density iteration %i' % (i + 1))
