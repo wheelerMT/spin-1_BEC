@@ -65,8 +65,8 @@ c1 = 0.75e-5
 k = 0
 
 # Time steps, number and wavefunction save variables
-Nt = 500000
-Nframe = 1000
+Nt = 2000000
+Nframe = 2000
 dt = 1e-2
 t = 0.
 
@@ -80,7 +80,7 @@ gamma = 0.
 
 N_vort = 2  # Number of vortices
 
-pos = [-15.5, -50, 15.5, -50]  # Position of dipoles
+pos = [-12.5, -50, 12.5, -50]  # Position of dipoles
 theta_k = np.empty((N_vort, Nx, Ny))
 theta = get_phase(N_vort, pos, Nx, Ny, cp.asnumpy(X), cp.asnumpy(Y), len_x, len_y)
 
@@ -162,13 +162,6 @@ with h5py.File(data_path, 'w') as data:
     data.create_dataset('initial_state/psi_0', data=cp.asnumpy(cp.fft.ifft2(psi_0_k)))
     data.create_dataset('initial_state/psi_minus', data=cp.asnumpy(cp.fft.ifft2(psi_minus_k)))
 
-
-fig, ax = plt.subplots(2, figsize=(8, 10))
-ax[0].contourf(cp.asnumpy(cp.abs(cp.fft.ifft2(psi_plus_k)) ** 2), cvals, cmap='gnuplot')
-ax[1].contourf(cp.asnumpy(cp.abs(cp.fft.ifft2(psi_minus_k)) ** 2), cvals, cmap='gnuplot')
-plt.show()
-
-
 # --------------------------------------------------------------------------------------------------------------------
 # Real time evolution
 # --------------------------------------------------------------------------------------------------------------------
@@ -207,4 +200,9 @@ for i in range(Nt):
     if np.mod(i, Nframe) == 0:
         print('t = {:2f}'.format(t))
 
+    if i == 0:
+        fig, ax = plt.subplots(2, figsize=(8, 10))
+        ax[0].contourf(cp.asnumpy(cp.abs(cp.fft.ifft2(psi_plus_k)) ** 2), cvals, cmap='gnuplot')
+        ax[1].contourf(cp.asnumpy(cp.abs(cp.fft.ifft2(psi_minus_k)) ** 2), cvals, cmap='gnuplot')
+        plt.show()
     t += dt
