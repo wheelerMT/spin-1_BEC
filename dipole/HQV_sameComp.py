@@ -5,11 +5,13 @@ from include import symplectic as sm
 from numpy import heaviside as heav
 import matplotlib.pyplot as plt
 
+"""Generates two pairs of half-quantum vortex dipoles in the same spinor component."""
+
 
 def get_phase(N_vort, pos, Nx, Ny, X, Y, len_x, len_y):
     # Phase initialisation
-    theta_k = np.empty((N_vort, Nx, Ny))
-    theta_tot = np.empty((Nx, Ny))
+    theta_k = np.zeros((N_vort, Nx, Ny))
+    theta_tot = np.zeros((Nx, Ny))
     pi = np.pi
 
     for k in range(N_vort // 2):
@@ -23,9 +25,6 @@ def get_phase(N_vort, pos, Nx, Ny, X, Y, len_x, len_y):
         X_plus = 2 * np.pi * (X - x_p) / len_x
         x_plus = 2 * np.pi * x_p / len_x
         x_minus = 2 * np.pi * x_m / len_x
-
-        heav_xp = heav(X_plus, 1.)
-        heav_xm = heav(X_minus, 1.)
 
         for nn in np.arange(-5, 5):
             theta_k[k, :, :] += np.arctan(
@@ -41,7 +40,7 @@ def get_phase(N_vort, pos, Nx, Ny, X, Y, len_x, len_y):
 # --------------------------------------------------------------------------------------------------------------------
 # Spatial and Potential parameters:
 # --------------------------------------------------------------------------------------------------------------------
-Nx, Ny = 256, 256  # Number of grid pts
+Nx, Ny = 1024, 1024  # Number of grid pts
 Mx, My = Nx // 2, Ny // 2
 dx = dy = 1  # Grid spacing
 dkx = np.pi / (Mx * dx)
@@ -52,9 +51,10 @@ x = cp.arange(-Mx, Mx) * dx
 y = cp.arange(-My, My) * dy
 X, Y = cp.meshgrid(x, y)  # Spatial meshgrid
 
-kx = cp.fft.fftshift(cp.arange(-Mx, Mx) * dkx)
-ky = cp.fft.fftshift(cp.arange(-My, My) * dky)
+kx = cp.arange(-Mx, Mx) * dkx
+ky = cp.arange(-My, My) * dky
 Kx, Ky = cp.meshgrid(kx, ky)  # K-space meshgrid
+Kx, Ky = cp.fft.fftshift(Kx), cp.fft.fftshift(Ky)
 
 # Controlled variables
 V = 0
@@ -65,7 +65,7 @@ c1 = 0.75e-5
 k = 0
 
 # Time steps, number and wavefunction save variables
-Nt = 2000000
+Nt = 10000000
 Nframe = 2000
 dt = 1e-2
 t = 0.
@@ -78,16 +78,13 @@ alpha = 0.
 beta = 0.
 gamma = 0.
 
-N_vort = 2  # Number of vortices
+N_vort = 4  # Number of vortices
 
-pos = [-12.5, -50, 12.5, -50]  # Position of dipoles
-theta_k = np.empty((N_vort, Nx, Ny))
+pos = [-271, 241, -256, -256, -241, 271, -256, -256]  # Position of dipoles
 theta = get_phase(N_vort, pos, Nx, Ny, cp.asnumpy(X), cp.asnumpy(Y), len_x, len_y)
 
-n_0 = 1.6e9 / (1024 ** 2)  # Background density
-cvals = np.linspace(0, n_0 * 0.6, 25)
-
 # Initial wavefunction
+n_0 = 1.6e9 / (1024 ** 2)  # Background density
 Psi = cp.empty((3, Nx, Ny), dtype='complex128')
 Psi[0, :, :] = cp.sqrt(n_0 / 2.) * cp.ones((Nx, Ny), dtype='complex128') * cp.exp(1j * cp.asarray(theta))
 Psi[1, :, :] = cp.zeros((Nx, Ny)) + 0j
@@ -202,7 +199,10 @@ for i in range(Nt):
 
     if i == 0:
         fig, ax = plt.subplots(2, figsize=(8, 10))
-        ax[0].contourf(cp.asnumpy(cp.abs(cp.fft.ifft2(psi_plus_k)) ** 2), cvals, cmap='gnuplot')
-        ax[1].contourf(cp.asnumpy(cp.abs(cp.fft.ifft2(psi_minus_k)) ** 2), cvals, cmap='gnuplot')
+        cvals = np.linspace(0, n_0 * 0.6, 25)
+        ax[0].contourf(cp.asnumpy(X), cp.asnumpy(Y), cp.asnumpy(cp.abs(cp.fft.ifft2(psi_plus_k)) ** 2), cvals, cmap='gnuplot')
+        ax[1].contourf(cp.asnumpy(X), cp.asnumpy(Y), cp.asnumpy(cp.abs(cp.fft.ifft2(psi_minus_k)) ** 2), cvals, cmap='gnuplot')
+        ax[0].set_title(r'$|\psi_+|^2$')
+        ax[1].set_title(r'$|\psi_-|^2$')
         plt.show()
     t += dt
