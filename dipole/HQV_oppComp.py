@@ -80,8 +80,8 @@ gamma = 0.
 
 # Generate phase fields:
 N_vort = 2
-pos_plus = [241, -256, 271, -256]
-pos_minus = [-271, -256, -241, -256]
+pos_plus = [241, -256, -241, -256]
+pos_minus = [-271, -256, 271, -256]
 theta_plus = get_phase(N_vort, pos_plus, Nx, Ny, cp.asnumpy(X), cp.asnumpy(Y), len_x, len_y)
 theta_minus = get_phase(N_vort, pos_minus, Nx, Ny, cp.asnumpy(X), cp.asnumpy(Y), len_x, len_y)
 
