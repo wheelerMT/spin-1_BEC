@@ -35,7 +35,7 @@ ax[2].set_title(r'$|<\vec{F}>|$')
 for axis in ax:
     axis.set_xlabel(r'$x / \xi_s$')
 
-cvals_dens = np.linspace(0, 1600, 25, endpoint=True)
+cvals_dens = np.linspace(0, 1, 25, endpoint=True)
 cvals_spin = np.linspace(0, 1, 25, endpoint=True)
 
 # Initial frame plot:
@@ -50,6 +50,7 @@ phase_cbar = plt.colorbar(spin_plot, ax=ax[2], ticks=[0, 1], fraction=0.044, pad
 
 for axis in ax:
     axis.set_aspect('equal')
+plt.text(-100, 400, r'$n_0 = 1, c_0 = 3.5, c_2 = 0.5$')
 
 
 def animate(i):
