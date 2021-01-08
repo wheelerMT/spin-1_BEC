@@ -6,19 +6,27 @@ def get_phase(num_of_vort, pos, x_pts, y_pts, grid_x, grid_y, grid_len_x, grid_l
     # Phase initialisation
     theta_tot = cp.empty((x_pts, y_pts))
 
-    for k in range(num_of_vort // 2):
+    # Scale pts:
+    x_tilde = 2 * cp.pi * ((grid_x - grid_x.min()) / grid_len_x)
+    y_tilde = 2 * cp.pi * ((grid_y - grid_y.min()) / grid_len_y)
+
+    for _ in range(num_of_vort // 2):
         theta_k = cp.zeros((x_pts, y_pts))
 
         x_m, y_m = next(pos)
         x_p, y_p = next(pos)
 
-        # Scaling positional arguments
-        Y_minus = 2 * cp.pi * (grid_y - y_m) / grid_len_y
-        X_minus = 2 * cp.pi * (grid_x - x_m) / grid_len_x
-        Y_plus = 2 * cp.pi * (grid_y - y_p) / grid_len_y
-        X_plus = 2 * cp.pi * (grid_x - x_p) / grid_len_x
-        x_plus = 2 * cp.pi * x_p / grid_len_x
-        x_minus = 2 * cp.pi * x_m / grid_len_x
+        # Scaling vortex positions:
+        x_m_tilde = 2 * cp.pi * ((x_m - grid_x.min()) / grid_len_x)
+        y_m_tilde = 2 * cp.pi * ((y_m - grid_y.min()) / grid_len_y)
+        x_p_tilde = 2 * cp.pi * ((x_p - grid_x.min()) / grid_len_x)
+        y_p_tilde = 2 * cp.pi * ((y_p - grid_y.min()) / grid_len_y)
+
+        # Aux variables
+        Y_minus = y_tilde - y_m_tilde
+        X_minus = x_tilde - x_m_tilde
+        Y_plus = y_tilde - y_p_tilde
+        X_plus = x_tilde - x_p_tilde
 
         heav_xp = cp.asarray(np.heaviside(cp.asnumpy(X_plus), 1.))
         heav_xm = cp.asarray(np.heaviside(cp.asnumpy(X_minus), 1.))
@@ -28,7 +36,7 @@ def get_phase(num_of_vort, pos, x_pts, y_pts, grid_x, grid_y, grid_len_x, grid_l
                                 - cp.arctan(cp.tanh((Y_plus + 2 * cp.pi * nn) / 2) * cp.tan((X_plus - cp.pi) / 2)) \
                                 + cp.pi * (heav_xp - heav_xm)
 
-        theta_k -= (2 * cp.pi * grid_y / grid_len_y) * (x_plus - x_minus) / (2 * cp.pi)
+        theta_k -= y_tilde * (x_p_tilde - x_m_tilde) / (2 * cp.pi)
         theta_tot += theta_k
 
     return theta_tot
@@ -51,6 +59,8 @@ def get_positions(num_of_vortices, threshold, len_x, len_y):
             if not triggered:
                 accepted_pos.append(pos)
                 within_range = False
+        if np.mod(len(accepted_pos), 10) == 0:
+            print('Found {} positions...'.format(len(accepted_pos)))
 
     print('Found {} positions in {} iterations.'.format(len(accepted_pos), iterations))
     return iter(accepted_pos)
