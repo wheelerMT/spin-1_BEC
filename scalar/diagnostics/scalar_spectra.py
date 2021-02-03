@@ -164,7 +164,7 @@ e_vc_calc = np.zeros((box_radius, num_of_frames), dtype='float32')
 for index in range(num_of_frames):
     for kx in range(Nx):
         for ky in range(Ny):
-            k = int(np.ceil(np.sqrt((kx - centerx) ** 2 + (ky - centery) ** 2)))
+            k = int(np.round(np.sqrt((kx - centerx) ** 2 + (ky - centery) ** 2)))
             nc[k, index] += 1
             e_occ_calc[k, index] = e_occ_calc[k, index] + occupation[kx, ky, index]
             e_q_calc[k, index] = e_q_calc[k, index] + K[kx, ky] ** (-2) * E_q[kx, ky, index]

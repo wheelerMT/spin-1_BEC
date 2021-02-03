@@ -37,7 +37,7 @@ frame = int(input('Enter the index of the frame you want to plot: '))  # Index c
 fig, ax = plt.subplots(1, figsize=(8, 8))
 ax.set_xlabel(r'$k \xi$')
 ax.set_ylabel(r'$n(k)$')
-ax.set_ylim(top=1e8, bottom=1e0)
+ax.set_ylim(top=3.2e9, bottom=1e0)
 
 # Occupation number:
 ax.loglog(wvn, e_occ[:Mx, frame], color='k', marker='D', markersize=3, linestyle='None', label='$n(k)$')
