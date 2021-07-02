@@ -40,6 +40,7 @@ data_path = '../scratch/data/scalar/{}.hdf5'.format(filename)
 backup_data_path = '../scratch/data/scalar/{}_backup.hdf5'.format(filename)
 
 fresh_simulation = True  # Boolean that corresponds to a fresh simulation if True or a continued simulation if False
+loading_vortex_pos = True
 
 # --------------------------------------------------------------------------------------------------------------------
 # Generating initial state:
@@ -54,25 +55,38 @@ if not fresh_simulation:
 
 # If it is a fresh simulation, generate the initial state:
 else:
-    n_0 = 1.6e9 / 1024 ** 2
+    n_0 = 3.2e9 / (Nx * dx * Ny * dy)
+    xi = 1 / np.sqrt(n_0 * c0)  # Healing length
 
-    # Generate phase:
-    N_vort = 1000
-    xi = 1 / np.sqrt(2 * n_0 * c0)  # Healing length
-    vort_pos = include.phaseImprinting.get_positions(N_vort, 5 * xi, len_x, len_y)  # Generator of vortex positions
+    # Store parameters in dictionary for saving
+    parameters = {
+        "c0": c0,
+        "n_0": n_0,
+        "xi": xi,
+        "m": 1 / 2,
+    }
 
-    theta = include.phaseImprinting.get_phase(N_vort, vort_pos, Nx, Ny, X, Y, len_x, len_y)
+    # Generate vortex positions:
+    N_vort = 48 ** 2
 
-    # Construct wavefunction:
+    if loading_vortex_pos:
+        with h5py.File('vortex_pos_uniform', 'r') as data:
+            vort_pos = iter(data['positions'])
+    else:
+        vort_pos = include.phaseImprinting.get_positions(N_vort, 2 * xi, len_x, len_y)  # Generator of vortex positions
+
+    theta = include.phaseImprinting.get_phase(N_vort, vort_pos, X, Y)   # Phase imprinting
+
+    # Construct wavefunction and related:
     psi = cp.sqrt(n_0) * cp.exp(1j * theta)
-    psi_k = cp.fft.fft2(psi)
-    atom_num = dx * dy * cp.sum(cp.abs(cp.fft.ifft2(psi_k)) ** 2)
+    atom_num = dx * dy * cp.sum(cp.abs(psi) ** 2)
     theta_fix = np.angle(psi)
+    psi_k = cp.fft.fft2(psi)
 
     # ------------------------------------------------------------------------------------------------------------------
     # Imaginary time evolution
     # ------------------------------------------------------------------------------------------------------------------
-    for i in range(500):
+    for i in range(2000):
         # Kinetic energy:
         psi_k *= cp.exp(-0.25 * dt * (Kx ** 2 + Ky ** 2))
 
@@ -107,6 +121,9 @@ else:
         data.create_dataset('time/Nt', data=Nt)
         data.create_dataset('time/dt', data=dt)
         data.create_dataset('time/Nframe', data=Nframe)
+
+        # Save parameters:
+        data.create_dataset('parameters', data=str(parameters))
 
         # Creating empty wavefunction datasets to store data:
         data.create_dataset('wavefunction/psi', (Nx, Ny, 1), maxshape=(Nx, Ny, None), dtype='complex64')
