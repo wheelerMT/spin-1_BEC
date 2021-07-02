@@ -2,7 +2,19 @@ import cupy as cp
 import numpy as np
 
 
-def get_phase(num_of_vort, pos, x_pts, y_pts, grid_x, grid_y, grid_len_x, grid_len_y):
+def get_phase(num_of_vort, pos, grid_x, grid_y):
+    """
+    num_of_vort: number of vortices to imprint
+    pos: iterable of positions to imprint the vortices
+    grid_x: X-meshgrid
+    grid_y: Y-meshgrid
+    """
+
+    # Constructing necessary grid parameters:
+    x_pts, y_pts = len(grid_x[:, 0]), len(grid_y[0, :])
+    dx, dy = grid_x[0, 1] - grid_x[0, 0], grid_y[1, 0] - grid_y[0, 0]
+    grid_len_x, grid_len_y = x_pts * dx, y_pts * dy
+
     # Phase initialisation
     theta_tot = cp.empty((x_pts, y_pts))
 
@@ -59,7 +71,7 @@ def get_positions(num_of_vortices, threshold, len_x, len_y):
             if not triggered:
                 accepted_pos.append(pos)
                 within_range = False
-        if np.mod(len(accepted_pos), 10) == 0:
+        if np.mod(len(accepted_pos), 500) == 0:
             print('Found {} positions...'.format(len(accepted_pos)))
 
     print('Found {} positions in {} iterations.'.format(len(accepted_pos), iterations))
