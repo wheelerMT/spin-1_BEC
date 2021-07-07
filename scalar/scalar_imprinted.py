@@ -30,7 +30,7 @@ c0 = 3e-5
 
 # Time steps, number and wavefunction save variables
 Nt = 10000000
-Nframe = 10000   # Save data every Nframe number of timesteps
+Nframe = 20000   # Save data every Nframe number of timesteps
 dt = 1e-2  # Imaginary time timestep
 t = 0.
 k = 0   # Array index
@@ -80,7 +80,7 @@ else:
     # Construct wavefunction and related:
     psi = cp.sqrt(n_0) * cp.exp(1j * theta)
     atom_num = dx * dy * cp.sum(cp.abs(psi) ** 2)
-    theta_fix = np.angle(psi)
+    theta_fix = cp.angle(psi)
     psi_k = cp.fft.fft2(psi)
 
     # ------------------------------------------------------------------------------------------------------------------
