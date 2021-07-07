@@ -71,17 +71,15 @@ else:
     N_vort = 48 ** 2
 
     if loading_vortex_pos:
-        with h5py.File('vortex_pos_uniform', 'r') as data:
-            vort_pos = iter(data['positions'])
+        with h5py.File('vortex_positions/vortex_pos_uniform.hdf5', 'r') as data:
+            vort_pos = iter(data['positions'][...])
     else:
         vort_pos = include.phase_imprinting.get_positions(N_vort, 2 * xi, len_x, len_y)  # Generator of vortex positions
 
     theta = include.phase_imprinting.get_phase(N_vort, vort_pos, X, Y)   # Phase imprinting
 
-    # Construct wavefunction and add noise:
-    psi_k = cp.sqrt(Nx * Ny) * cp.sqrt(1 / 2) * cp.exp(1j * cp.random.uniform(0, 2 * cp.pi, size=(Nx, Ny)))
-    psi_k[Nx // 2, Ny // 2] = Nx * Ny * cp.sqrt(n_0)
-    psi = cp.fft.ifft2(cp.fft.ifftshift(psi_k)) * cp.exp(1j * theta)
+    # Construct wavefunction
+    psi = cp.sqrt(n_0) * cp.exp(1j * theta)
 
     atom_num = dx * dy * cp.sum(cp.abs(psi) ** 2)
 
@@ -115,6 +113,14 @@ else:
         psi = cp.fft.ifft2(psi_k)
         psi *= cp.exp(1j * theta_fix) / cp.exp(1j * cp.angle(psi))
         psi_k = cp.fft.fft2(psi)
+
+    # Add noise to k!=0 modes:
+    for i in range(Nx):
+        for j in range(Ny):
+            if i == 0 and j == 0:
+                continue
+            else:
+                psi_k[i, j] += cp.sqrt(Nx * Ny) * cp.sqrt(1 / 2) * cp.exp(1j * cp.random.uniform(0, 2 * cp.pi))
 
     # Creating file to save to:
     with h5py.File(data_path, 'w') as data:
