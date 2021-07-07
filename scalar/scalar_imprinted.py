@@ -70,8 +70,8 @@ else:
     N_vort = 48 ** 2
 
     if loading_vortex_pos:
-        with h5py.File('vortex_pos_uniform', 'r') as data:
-            vort_pos = iter(data['positions'])
+        with h5py.File('vortex_positions/vortex_pos_uniform.hdf5', 'r') as data:
+            vort_pos = iter(data['positions'][...])
     else:
         vort_pos = include.phase_imprinting.get_positions(N_vort, 2 * xi, len_x, len_y)  # Generator of vortex positions
 
