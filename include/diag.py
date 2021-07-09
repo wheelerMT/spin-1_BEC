@@ -21,7 +21,7 @@ def calculate_spin(wfn_plus, wfn_0, wfn_minus, dens):
     return spin_x, spin_y, spin_z, expectation
 
 
-def spectral_derivative(array, wvn_x, wvn_y, fft2, ifft2):
+def spectral_derivative(array, wvn_x, wvn_y, fft2=np.fft.fft2, ifft2=np.fft.ifft2):
     return ifft2(ifftshift(1j * wvn_x * fftshift(fft2(array)))), ifft2(ifftshift(1j * wvn_y * fftshift(fft2(array))))
 
 
@@ -39,3 +39,14 @@ def calculate_mass_current(wfn_plus, wfn_0, wfn_minus, dpsi_p_x, dpsi_p_y, dpsi_
 
 def calculate_pseudo_vorticity(mass_current_x, mass_current_y, dxx, dyy):
     return np.gradient(mass_current_y, dxx, axis=0) - np.gradient(mass_current_x, dyy, axis=1)
+
+
+def calculate_scalar_energy(wfn, Kx, Ky, m, V, g):
+    dwfn_x, dwfn_y = spectral_derivative(wfn, Kx, Ky)
+    kinetic_energy = np.sum(1 / (2 * m) * (abs(dwfn_x) ** 2 + abs(dwfn_y) ** 2))
+
+    potential_energy = np.sum(V * abs(wfn) ** 2)
+
+    interaction_energy = np.sum(g / 2 * abs(wfn) ** 4)
+
+    return kinetic_energy + potential_energy + interaction_energy
