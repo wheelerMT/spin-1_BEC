@@ -32,12 +32,9 @@ c0 = 3e-5
 Nt = 10000000
 Nframe = 20000   # Save data every Nframe number of timesteps
 dt = 1e-2  # Imaginary time timestep
-t = 0.
-k = 0   # Array index
 
 filename = 'scalar_imp'    # Name of file to save data to
 data_path = '../scratch/data/scalar/{}.hdf5'.format(filename)
-backup_data_path = '../scratch/data/scalar/{}_backup.hdf5'.format(filename)
 
 fresh_simulation = True  # Boolean that corresponds to a fresh simulation if True or a continued simulation if False
 loading_vortex_pos = True
@@ -47,14 +44,19 @@ loading_vortex_pos = True
 # --------------------------------------------------------------------------------------------------------------------
 # If it is a continued simulation, load the previous data and continue to evolution:
 if not fresh_simulation:
-    previous_data = h5py.File(backup_data_path, 'r')
-    psi_k = cp.array(previous_data['wavefunction/psi_k'])
-    t = np.round(previous_data['time'][...])
-    k = previous_data['array_index'][...]
+    previous_data = h5py.File(data_path, 'r')
+    psi_data = previous_data['wavefunction/psi']
+    k = psi_data.shape[-1]
+    psi_k = np.fft.fft2(psi_data[:, :, -1])
+    psi_k = cp.asarray(psi_k)
+    t = k * Nframe * dt
     previous_data.close()
 
 # If it is a fresh simulation, generate the initial state:
 else:
+    t = 0.
+    k = 0  # Array index
+
     n_0 = 3.2e9 / (Nx * dx * Ny * dy)
     xi = 1 / np.sqrt(n_0 * c0)  # Healing length
 
@@ -158,13 +160,6 @@ for i in range(Nt):
             new_psi.resize((Nx, Ny, k + 1))
             new_psi[:, :, k] = cp.asnumpy(cp.fft.ifft2(psi_k))
         k += 1
-
-    # Saves 'backup' wavefunction we can use to continue simulations if ended:
-    if np.mod(i + 1, 50000) == 0:
-        with h5py.File(backup_data_path, 'w') as backup:
-            backup.create_dataset('time', data=t)
-            backup.create_dataset('wavefunction/psi_k', shape=psi_k.shape, dtype='complex64', data=cp.asnumpy(psi_k))
-            backup.create_dataset('array_index', data=k)
 
     # Prints current time
     if np.mod(i, Nframe) == 0:
