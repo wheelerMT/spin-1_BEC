@@ -33,6 +33,13 @@ def fourier_space(wfn_plus, wfn_0, wfn_minus, dt, Kx, Ky, q):
     wfn_minus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + Ky ** 2 + 2 * q))
 
 
+def fourier_space_1d(wfn_plus, wfn_0, wfn_minus, dt, Kx, q):
+    """Solves the kinetic energy term in Fourier space."""
+    wfn_plus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * q))
+    wfn_0 *= cp.exp(-0.25 * 1j * dt * (Kx ** 2))
+    wfn_minus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * q))
+
+
 def calc_spin_dens(wfn_plus, wfn_0, wfn_minus, dt, c2):
     """Calculates various quantities such as spin vectors, sin and cosine terms and the atomic density."""
     spin_perp = cp.sqrt(2.) * (cp.conj(wfn_plus) * wfn_0 + cp.conj(wfn_0) * wfn_minus)
