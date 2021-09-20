@@ -65,3 +65,20 @@ def interaction_flow(wfn_plus, wfn_0, wfn_minus, C, S, Fz, F_perp, dt, V, p, c0,
         -1j * dt * (V + p + c0 * n))
 
     return new_wfn_plus, new_wfn_0, new_wfn_minus
+
+
+def renorm_mag(wfn_plus, wfn_0, wfn_minus, target_mag):
+    N_plus = cp.sum(abs(wfn_plus) ** 2)
+    N_0 = cp.sum(abs(wfn_0) ** 2)
+    N_minus = cp.sum(abs(wfn_minus) ** 2)
+
+    N = N_plus + N_0 + N_minus
+
+    # Correction factors
+    r_plus = cp.sqrt((1 + (target_mag * N + N_minus - N_plus) / (2 * N_plus)) / N)
+    r_0 = cp.sqrt(1 / N)
+    r_minus = cp.sqrt((1 - (target_mag * N + N_minus - N_plus) / (2 * N_minus)) / N)
+
+    wfn_plus *= r_plus
+    wfn_0 *= r_0
+    wfn_minus *= r_minus
