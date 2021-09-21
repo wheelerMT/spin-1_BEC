@@ -60,7 +60,7 @@ Fz_plot = ax[2].pcolormesh(time, X, spacetime_Fz, vmin=-1, vmax=1, shading='auto
 F_cbar = plt.colorbar(F_plot, ax=ax[0])
 F_perp_cbar = plt.colorbar(F_perp_plot, ax=ax[1])
 F_perp_cbar.set_ticks([-np.pi, 0, np.pi])
-F_perp_cbar.set_ticklabels(['-$\pi$', '0', r'$\pi$'])
+F_perp_cbar.set_ticklabels([r'-$\pi$', '0', r'$\pi$'])
 Fz_cbar = plt.colorbar(Fz_plot, ax=ax[2])
 Fz_cbar.set_ticks([-1, 1])
 Fz_cbar.set_ticklabels(['-1', '1'])
