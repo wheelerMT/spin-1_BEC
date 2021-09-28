@@ -8,7 +8,7 @@ matplotlib.use('TkAgg')
 
 # Load in data:
 filename = input('Enter data filename: ')
-data_file = h5py.File('../../data/{}.hdf5'.format(filename), 'r')
+data_file = h5py.File('../../../data/{}.hdf5'.format(filename), 'r')
 
 psi_plus = data_file['wavefunction/psi_plus']
 psi_0 = data_file['wavefunction/psi_0']
