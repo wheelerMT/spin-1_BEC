@@ -5,7 +5,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 
 # Load in data:
-filename = input('Enter data filename: ')
+filename = '1d_kibble-zurek/1d_polar-BA-FM_300'  # input('Enter data filename: ')
 data_file = h5py.File('../../../data/{}.hdf5'.format(filename), 'r')
 
 psi_plus = data_file['wavefunction/psi_plus']
