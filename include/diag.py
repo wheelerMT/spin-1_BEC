@@ -25,6 +25,10 @@ def spectral_derivative(array, wvn_x, wvn_y, fft2=np.fft.fft2, ifft2=np.fft.ifft
     return ifft2(ifftshift(1j * wvn_x * fftshift(fft2(array)))), ifft2(ifftshift(1j * wvn_y * fftshift(fft2(array))))
 
 
+def spectral_derivative_1d(array, wvn_x):
+    return np.fft.ifft(1j * wvn_x * np.fft.fft(array))
+
+
 def calculate_mass_current(wfn_plus, wfn_0, wfn_minus, dpsi_p_x, dpsi_p_y, dpsi_0_x, dpsi_0_y, dpsi_m_x, dpsi_m_y):
     mass_cur_x = ne.evaluate("(conj(wfn_minus) * dpsi_m_x - conj(dpsi_m_x) * wfn_minus "
                              "+ conj(wfn_0) * dpsi_0_x - conj(dpsi_0_x) * wfn_0"
@@ -50,3 +54,25 @@ def calculate_scalar_energy(wfn, Kx, Ky, m, V, g):
     interaction_energy = np.sum(g / 2 * abs(wfn) ** 4)
 
     return kinetic_energy + potential_energy + interaction_energy
+
+
+def calculate_energy_1d(wfn_plus, wfn_0, wfn_minus, dx, wvn_x, m, p, q, V, c0, c2):
+    psi = [wfn_plus, wfn_0, wfn_minus]
+    n = calculate_density(wfn_plus, wfn_0, wfn_minus)
+    fx, fy, fz, _ = calculate_spin(wfn_plus, wfn_0, wfn_minus, n)
+    F2 = abs(fx) ** 2 + abs(fy) ** 2 + fz ** 2
+
+    dwfn_plus = spectral_derivative_1d(wfn_plus, wvn_x)
+    dwfn_0 = spectral_derivative_1d(wfn_0, wvn_x)
+    dwfn_minus = spectral_derivative_1d(wfn_minus, wvn_x)
+    kinetic_energy = dx * np.sum(1 / (2 * m) * (abs(dwfn_plus) ** 2 + abs(dwfn_0) ** 2 + abs(dwfn_minus) ** 2))
+
+    pot_energy = 0
+    for i, wfn in enumerate(psi):
+        mF = 1 - i  # Spin component
+        pot_energy += (V - p * mF + q * mF ** 2) * abs(wfn) ** 2
+    pot_energy = dx * np.sum(pot_energy)
+
+    interaction_energy = dx * np.sum(c0 / 2 * n ** 2 + c2 / 2 * F2)
+
+    return kinetic_energy + pot_energy + interaction_energy
