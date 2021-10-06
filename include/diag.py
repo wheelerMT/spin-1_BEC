@@ -62,17 +62,20 @@ def calculate_energy_1d(wfn_plus, wfn_0, wfn_minus, dx, wvn_x, m, p, q, V, c0, c
     fx, fy, fz, _ = calculate_spin(wfn_plus, wfn_0, wfn_minus, n)
     F2 = abs(fx) ** 2 + abs(fy) ** 2 + fz ** 2
 
+    # Calculate kinetic energy
     dwfn_plus = spectral_derivative_1d(wfn_plus, wvn_x)
     dwfn_0 = spectral_derivative_1d(wfn_0, wvn_x)
     dwfn_minus = spectral_derivative_1d(wfn_minus, wvn_x)
     kinetic_energy = dx * np.sum(1 / (2 * m) * (abs(dwfn_plus) ** 2 + abs(dwfn_0) ** 2 + abs(dwfn_minus) ** 2))
 
+    # Calculate potential energy
     pot_energy = 0
     for i, wfn in enumerate(psi):
         mF = 1 - i  # Spin component
         pot_energy += (V - p * mF + q * mF ** 2) * abs(wfn) ** 2
     pot_energy = dx * np.sum(pot_energy)
 
+    # Calculate interaction energy
     interaction_energy = dx * np.sum(c0 / 2 * n ** 2 + c2 / 2 * F2)
 
-    return kinetic_energy + pot_energy + interaction_energy
+    return kinetic_energy, pot_energy, interaction_energy
