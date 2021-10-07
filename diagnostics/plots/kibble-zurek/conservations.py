@@ -44,7 +44,7 @@ energy_pot = np.empty(num_of_frames)
 energy_int = np.empty(num_of_frames)
 for i in range(num_of_frames):
     N[i] = int(dx * np.sum(n[:, i]))
-    mag[i] = int(dx * np.sum(fz[:, i])) / Nx
+    mag[i] = int(dx * np.sum(fz[:, i])) / (Nx * dx)
     energy_kin[i], energy_pot[i], energy_int[i] \
         = diag.calculate_energy_1d(psi_plus[:, i], psi_0[:, i], psi_minus[:, i], dx, Kx, 1, p, q[i], 0, 10, -0.5)
 
