@@ -13,7 +13,7 @@ fm_domains = diag_file['FM_domains/average'][...]
 fm_domains_sd = []
 for quench in quench_rates:
     domains_ens = diag_file['FM_domains/{}'.format(quench)]
-    fm_domains_sd.append(np.var(domains_ens))
+    fm_domains_sd.append(np.std(domains_ens))
 
 fig, ax = plt.subplots(1, )
 ax.set_xscale("log")
