@@ -29,7 +29,7 @@ V = 0.  # Doubly periodic box
 p = 0  # Linear Zeeman
 q_init = 1.5
 q = q_init  # Quadratic Zeeman
-quench_rate = 750  # Time when q=-q_init (dimensionless units)
+quench_time = 750  # Time when q=-q_init (dimensionless units)
 c0 = 10
 c2 = -0.5
 
@@ -81,7 +81,7 @@ for i in range(Nt):
 
     # Decrease q linearly until we meet threshold
     if q > -q_init:
-        q = q - q_init / (quench_rate / dt)
+        q = q - q_init / (quench_time / dt)
 
     # Saves data
     if cp.mod(i + 1, Nframe) == 0:

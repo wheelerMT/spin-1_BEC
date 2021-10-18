@@ -22,7 +22,7 @@ p_init = 0.
 p_final = 1
 p = p_init  # Linear Zeeman
 q = -0.5  # Quadratic Zeeman
-quench_rate = 500  # Time when p=1 (dimensionless units)
+quench_time = 500  # Time when p=1 (dimensionless units)
 c0 = 10
 c2 = 0.5
 
@@ -120,7 +120,7 @@ for i in range(Nt):
 
     # Increase p linearly until we meet threshold
     if p < p_final:
-        p = p_final * t / quench_rate
+        p = p_final * t / quench_time
 
     # Saves data
     if cp.mod(i + 1, Nframe) == 0:

@@ -27,7 +27,7 @@ psi_minus_k = cp.fft.fft(psi_minus)
 # Controlled variables
 V = 0.  # Doubly periodic box
 p = 0  # Linear Zeeman
-quench_rate = 500  # Time when q=-q_init (dimensionless units)
+quench_time = 500  # Time when q=-q_init (dimensionless units)
 c0 = 10
 c2 = -0.5
 q_init = 3 * abs(c2)
@@ -81,7 +81,7 @@ for i in range(Nt):
 
     # Decrease q linearly until we meet threshold
     if q > -q_init:
-        q = q_init * (1 - t / quench_rate)
+        q = q_init * (1 - t / quench_time)
 
     # Saves data
     if cp.mod(i + 1, Nframe) == 0:

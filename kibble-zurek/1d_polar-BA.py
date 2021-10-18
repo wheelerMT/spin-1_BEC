@@ -31,7 +31,7 @@ p = 0  # Linear Zeeman
 q_init = 1.5
 q = q_init  # Quadratic Zeeman
 q_crit = 1
-quench_rate = 250  # Time when q=-q_init (dimensionless units)
+quench_time = 250  # Time when q=-q_init (dimensionless units)
 c0 = 10
 c2 = -0.5
 
@@ -83,7 +83,7 @@ for i in range(Nt):
 
     # Decrease q linearly until we meet threshold
     if q > q_crit / 2:
-        q = q_crit * (1 - t / quench_rate)
+        q = q_crit * (1 - t / quench_time)
 
     # Saves data
     if cp.mod(i + 1, Nframe) == 0:
