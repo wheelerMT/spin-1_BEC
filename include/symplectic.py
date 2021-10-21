@@ -40,6 +40,14 @@ def fourier_space_1d(wfn_plus, wfn_0, wfn_minus, dt, Kx, q):
     wfn_minus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * q))
 
 
+def fourier_space_KZ_1d(wfn_plus, wfn_0, wfn_minus, dt, Kx, t, tau_q, c2, n_0):
+    """Solves the kinetic energy and time-dependent quadratic Zeeman
+    term in Fourier space."""
+    wfn_plus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * abs(c2) * n_0 * (2 - t * (1 + dt) / (2 * tau_q))))
+    wfn_0 *= cp.exp(-0.25 * 1j * dt * (Kx ** 2))
+    wfn_minus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * abs(c2) * n_0 * (2 - t * (1 + dt) / (2 * tau_q))))
+
+
 def calc_spin_dens(wfn_plus, wfn_0, wfn_minus, dt, c2):
     """Calculates various quantities such as spin vectors, sin and cosine terms and the atomic density."""
     spin_perp = cp.sqrt(2.) * (cp.conj(wfn_plus) * wfn_0 + cp.conj(wfn_0) * wfn_minus)
@@ -53,6 +61,13 @@ def calc_spin_dens(wfn_plus, wfn_0, wfn_minus, dt, c2):
     density = cp.abs(wfn_minus) ** 2 + cp.abs(wfn_0) ** 2 + cp.abs(wfn_plus) ** 2
 
     return spin_perp, spin_z, cos_term, sin_term, density
+
+
+def transverse_mag(wfn_plus, wfn_0, wfn_minus, dx):
+    dens = abs(wfn_plus) ** 2 + abs(wfn_0) ** 2 + abs(wfn_minus) ** 2
+    spin_perp = cp.sqrt(2.) * (cp.conj(wfn_plus) * wfn_0 + cp.conj(wfn_0) * wfn_minus)
+
+    return dx * cp.sum(abs(spin_perp) ** 2 / dens)
 
 
 def interaction_flow(wfn_plus, wfn_0, wfn_minus, C, S, Fz, F_perp, dt, V, p, c0, n):
