@@ -40,12 +40,12 @@ def fourier_space_1d(wfn_plus, wfn_0, wfn_minus, dt, Kx, q):
     wfn_minus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * q))
 
 
-def fourier_space_KZ_1d(wfn_plus, wfn_0, wfn_minus, dt, Kx, t, tau_q, c2, n_0):
+def fourier_space_KZ_1d(wfn_plus, wfn_0, wfn_minus, dt, Kx, Q, c2, n_0):
     """Solves the kinetic energy and time-dependent quadratic Zeeman
     term in Fourier space."""
-    wfn_plus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * abs(c2) * n_0 * (2 - t * (1 + dt) / (2 * tau_q))))
+    wfn_plus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * abs(c2) * n_0 * (Q + dt)))
     wfn_0 *= cp.exp(-0.25 * 1j * dt * (Kx ** 2))
-    wfn_minus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * abs(c2) * n_0 * (2 - t * (1 + dt) / (2 * tau_q))))
+    wfn_minus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * abs(c2) * n_0 * (Q + dt)))
 
 
 def calc_spin_dens(wfn_plus, wfn_0, wfn_minus, dt, c2):
