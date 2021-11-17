@@ -1,7 +1,8 @@
 import cupy as cp
 import h5py
-import include.symplectic as sm
 import sys
+# sys.path.insert(0, 'C:/dev/uni/spin-1/') # location of src
+import include.symplectic as sm
 
 # --------------------------------------------------------------------------------------------------------------------
 # Spatial and Potential parameters:
@@ -16,9 +17,9 @@ Kx = cp.arange(-Mx, Mx) * dkx
 Kx = cp.fft.fftshift(Kx)
 
 # Framework for wavefunction data
-n = 1 / len_x  # Background density
+n_0 = 1 / len_x  # Background density
 psi_plus = (cp.random.normal(0, 1e-4, Nx) + 1j * cp.random.normal(0, 1e-4, Nx)) / cp.sqrt(Nx)
-psi_0 = cp.sqrt(n) + ((cp.random.normal(0, 1e-4, Nx) + 1j * cp.random.normal(0, 1e-4, Nx)) / cp.sqrt(Nx))
+psi_0 = cp.sqrt(n_0) + ((cp.random.normal(0, 1e-4, Nx) + 1j * cp.random.normal(0, 1e-4, Nx)) / cp.sqrt(Nx))
 psi_minus = (cp.random.normal(0, 1e-4, Nx) + 1j * cp.random.normal(0, 1e-4, Nx)) / cp.sqrt(Nx)
 
 psi_plus_k = cp.fft.fft(psi_plus)
@@ -35,10 +36,13 @@ quench_time = int(sys.argv[-1])
 run_num = 1  # Change this to int(sys.argv[-2]) for more runs
 
 # Calculate number of time steps needed
-t = -0.5 * quench_time  # Start in polar state
 dt = 5e-5  # Time step
-Nt = 2.5 * quench_time / dt
-Nframe = Nt / 200   # Save 200 frames of data in total
+Nframe = 1000  # Number of frames of data
+t = -0.5 * quench_time  # Choose this so Q_init = 2.5
+Q_init = 2 - t / quench_time
+Q = Q_init
+Nt = 2 * Q_init * quench_time / dt
+N_steps = Nt // Nframe  # Saves data every N_steps
 
 # Initialise variables
 k = 0  # Array index
@@ -79,9 +83,9 @@ with h5py.File(data_path, 'a') as data:
 # Real time evolution
 # --------------------------------------------------------------------------------------------------------------------
 i = 0
-while q > 0:
+while Q > 0:
 
-    sm.fourier_space_1d(psi_plus_k, psi_0_k, psi_minus_k, dt, Kx, q)
+    sm.fourier_space_KZ_1d(psi_plus_k, psi_0_k, psi_minus_k, dt, Kx, Q, c2, n_0, quench_time)
 
     psi_plus, psi_0, psi_minus = cp.fft.ifft(psi_plus_k), cp.fft.ifft(psi_0_k), cp.fft.ifft(psi_minus_k)
 
@@ -91,10 +95,15 @@ while q > 0:
 
     psi_plus_k, psi_0_k, psi_minus_k = cp.fft.fft(psi_plus), cp.fft.fft(psi_0), cp.fft.fft(psi_minus)
 
-    sm.fourier_space_1d(psi_plus_k, psi_0_k, psi_minus_k, dt, Kx, q)
+    sm.fourier_space_KZ_1d(psi_plus_k, psi_0_k, psi_minus_k, dt, Kx, Q, c2, n_0, quench_time)
 
+    if sm.transverse_mag(cp.fft.ifft(psi_plus_k), cp.fft.ifft(psi_0_k), cp.fft.ifft(psi_minus_k), dx) >= 0.01:
+        with h5py.File(data_path, 'r+') as data:
+            data.create_dataset('{}/run{}/t_hat'.format(quench_time, run_num), data=t)
+        print('t_hat for quench time {} = {}'.format(quench_time, t))
+        exit()
     # Decrease q linearly until we meet threshold
-    q = abs(c2) * n * (2 - t / quench_time)
+    q = abs(c2) * n_0 * (2 - t / quench_time)
 
     # Saves data
     if cp.mod(i + 1, Nframe) == 0:
