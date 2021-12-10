@@ -48,6 +48,26 @@ def fourier_space_KZ_1d(wfn_plus, wfn_0, wfn_minus, dt, Kx, Q, c2, n_0, tau_q):
     wfn_minus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * abs(c2) * n_0 * (Q - dt / (2 * tau_q))))
 
 
+def fourier_space_KZ_2d(wfn_plus, wfn_0, wfn_minus, dt, Kx, Ky, Q, c2, n_0, tau_q, sign):
+    """Solves the kinetic energy and time-dependent quadratic Zeeman
+    term in Fourier space."""
+
+    # If decreasing Q
+    if sign == -1:
+        wfn_plus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + Ky ** 2 + 2 * abs(c2) * n_0 * (Q - dt / (2 * tau_q))))
+        wfn_0 *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + Ky ** 2))
+        wfn_minus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + Ky ** 2 + 2 * abs(c2) * n_0 * (Q - dt / (2 * tau_q))))
+
+    # Else, if increasing Q
+    elif sign == 1:
+        wfn_plus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + Ky ** 2 + 2 * abs(c2) * n_0 * (Q + dt / (2 * tau_q))))
+        wfn_0 *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + Ky ** 2))
+        wfn_minus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + Ky ** 2 + 2 * abs(c2) * n_0 * (Q + dt / (2 * tau_q))))
+
+    else:
+        raise ValueError("parameter sign is not 1 or -1.")
+
+
 def calc_spin_dens(wfn_plus, wfn_0, wfn_minus, dt, c2):
     """Calculates various quantities such as spin vectors, sin and cosine terms and the atomic density."""
     spin_perp = cp.sqrt(2.) * (cp.conj(wfn_plus) * wfn_0 + cp.conj(wfn_0) * wfn_minus)
