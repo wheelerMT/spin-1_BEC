@@ -16,8 +16,9 @@ Kx = cp.arange(-Mx, Mx) * dkx
 Kx = cp.fft.fftshift(Kx)
 
 # Framework for wavefunction data
+n_0 = 1.
 psi_plus = (cp.random.normal(0, 0.5, Nx) + 1j * cp.random.normal(0, 0.5, Nx)) / cp.sqrt(Nx)
-psi_0 = cp.ones(Nx, dtype='complex64')
+psi_0 = cp.ones(Nx, dtype='complex64') + (cp.random.normal(0, 0.5, Nx) + 1j * cp.random.normal(0, 0.5, Nx)) / cp.sqrt(Nx)
 psi_minus = (cp.random.normal(0, 0.5, Nx) + 1j * cp.random.normal(0, 0.5, Nx)) / cp.sqrt(Nx)
 
 psi_plus_k = cp.fft.fft(psi_plus)
@@ -27,21 +28,22 @@ psi_minus_k = cp.fft.fft(psi_minus)
 # Controlled variables
 V = 0.  # Doubly periodic box
 p = 0  # Linear Zeeman
-quench_time = 500  # Time when q=-q_init (dimensionless units)
+tau_q = 1000  # Time when q=-q_init (dimensionless units)
 c0 = 10
 c2 = -0.5
-q_init = 3 * abs(c2)
-q = q_init  # Quadratic Zeeman
 
 # Time steps, number and wavefunction save variables
-Nt = 200000
-Nframe = 1000  # Saves data every Nframe time steps
-dt = 5e-3  # Time step
-t = 0.
+dt = 1e-3  # Time step
+Nframe = 2000  # Number of frames of data
+Q_init = 2.5
+t = -Q_init * tau_q  # Choose this so Q_init = 2.5
+Q = Q_init
+Nt = int(1.5 * Q_init * tau_q / dt)  # 1.5 is to extend beyond when Q = -Q_init
+N_steps = Nt // Nframe  # Saves data every N_steps
 k = 0  # Array index
 
-filename = '1d_polar-BA-FM_{}'.format(Nx * dx)  # Name of file to save data to
-data_path = '../data/1d_kibble-zurek/differing_domains/{}.hdf5'.format(filename)
+filename = '1d_polar-BA-FM_{}'.format(tau_q)  # Name of file to save data to
+data_path = '../scratch/data/spin-1/kibble-zurek/{}.hdf5'.format(filename)
 
 with h5py.File(data_path, 'w') as data:
     # Saving spatial data:
@@ -67,7 +69,7 @@ with h5py.File(data_path, 'w') as data:
 # --------------------------------------------------------------------------------------------------------------------
 for i in range(Nt):
 
-    sm.fourier_space_1d(psi_plus_k, psi_0_k, psi_minus_k, dt, Kx, q)
+    sm.fourier_space_KZ_1d(psi_plus_k, psi_0_k, psi_minus_k, dt, Kx, Q, c2, n_0, tau_q, sign=-1)
 
     psi_plus, psi_0, psi_minus = cp.fft.ifft(psi_plus_k), cp.fft.ifft(psi_0_k), cp.fft.ifft(psi_minus_k)
 
@@ -77,11 +79,11 @@ for i in range(Nt):
 
     psi_plus_k, psi_0_k, psi_minus_k = cp.fft.fft(psi_plus), cp.fft.fft(psi_0), cp.fft.fft(psi_minus)
 
-    sm.fourier_space_1d(psi_plus_k, psi_0_k, psi_minus_k, dt, Kx, q)
+    sm.fourier_space_KZ_1d(psi_plus_k, psi_0_k, psi_minus_k, dt, Kx, Q, c2, n_0, tau_q, sign=-1)
 
     # Decrease q linearly until we meet threshold
-    if q > -q_init:
-        q = q_init * (1 - t / quench_time)
+    if Q > -Q_init:
+        Q = -t / tau_q
 
     # Saves data
     if cp.mod(i + 1, Nframe) == 0:
@@ -102,7 +104,7 @@ for i in range(Nt):
         k += 1  # Increment array index
 
     if cp.mod(i, Nframe) == 0:
-        # print(q)
+        print(Q)
         print('t = {:2f}'.format(t))
 
     t += dt
