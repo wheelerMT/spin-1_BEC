@@ -40,12 +40,20 @@ def fourier_space_1d(wfn_plus, wfn_0, wfn_minus, dt, Kx, q):
     wfn_minus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * q))
 
 
-def fourier_space_KZ_1d(wfn_plus, wfn_0, wfn_minus, dt, Kx, Q, c2, n_0, tau_q):
+def fourier_space_KZ_1d(wfn_plus, wfn_0, wfn_minus, dt, Kx, Q, c2, n_0, tau_q, sign):
     """Solves the kinetic energy and time-dependent quadratic Zeeman
     term in Fourier space."""
-    wfn_plus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * abs(c2) * n_0 * (Q - dt / (2 * tau_q))))
-    wfn_0 *= cp.exp(-0.25 * 1j * dt * (Kx ** 2))
-    wfn_minus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * abs(c2) * n_0 * (Q - dt / (2 * tau_q))))
+
+    if sign == -1:
+        wfn_plus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * abs(c2) * n_0 * (Q - dt / (2 * tau_q))))
+        wfn_0 *= cp.exp(-0.25 * 1j * dt * (Kx ** 2))
+        wfn_minus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * abs(c2) * n_0 * (Q - dt / (2 * tau_q))))
+    elif sign == 1:
+        wfn_plus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * abs(c2) * n_0 * (Q + dt / (2 * tau_q))))
+        wfn_0 *= cp.exp(-0.25 * 1j * dt * (Kx ** 2))
+        wfn_minus *= cp.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * abs(c2) * n_0 * (Q + dt / (2 * tau_q))))
+    else:
+        raise ValueError("parameter sign is not 1 or -1.")
 
 
 def fourier_space_KZ_2d(wfn_plus, wfn_0, wfn_minus, dt, Kx, Ky, Q, c2, n_0, tau_q, sign):
