@@ -28,13 +28,13 @@ psi_minus_k = cp.fft.fft(psi_minus)
 # Controlled variables
 V = 0.  # Doubly periodic box
 p = 0  # Linear Zeeman
-tau_q = 1000  # Time when q=-q_init (dimensionless units)
+tau_q = 2500  # Time when q=-q_init (dimensionless units)
 c0 = 10
 c2 = -0.5
 
 # Time steps, number and wavefunction save variables
 dt = 1e-3  # Time step
-Nframe = 2000  # Number of frames of data
+Nframe = 1000  # Number of frames of data
 Q_init = 2.5
 t = -Q_init * tau_q  # Choose this so Q_init = 2.5
 Q = Q_init
@@ -53,6 +53,7 @@ with h5py.File(data_path, 'w') as data:
     data.create_dataset('time/Nt', data=Nt)
     data.create_dataset('time/dt', data=dt)
     data.create_dataset('time/Nframe', data=Nframe)
+    data.create_dataset('time/N_steps', data=N_steps)
 
     # Creating empty wavefunction datasets to store data:
     data.create_dataset('wavefunction/psi_plus', (Nx, 1), maxshape=(Nx, None), dtype='complex64')
@@ -86,7 +87,7 @@ for i in range(Nt):
         Q = -t / tau_q
 
     # Saves data
-    if cp.mod(i + 1, Nframe) == 0:
+    if cp.mod(i + 1, N_steps) == 0:
         # Updates file with new wavefunction values:
         with h5py.File(data_path, 'r+') as data:
             new_psi_plus = data['wavefunction/psi_plus']
@@ -103,7 +104,7 @@ for i in range(Nt):
 
         k += 1  # Increment array index
 
-    if cp.mod(i, Nframe) == 0:
+    if cp.mod(i, N_steps) == 0:
         print(Q)
         print('t = {:2f}'.format(t))
 
