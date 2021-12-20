@@ -13,6 +13,7 @@ def animate(i):
 
     F_plot.set_array(abs(a_F))
     spin_angle_plot.set_array(np.angle(a_F_perp))
+    fz_plot.set_array(a_fz)
 
 
 # Load in data
@@ -29,16 +30,17 @@ psi_plus = data_file['wavefunction/psi_plus']
 psi_0 = data_file['wavefunction/psi_0']
 psi_minus = data_file['wavefunction/psi_minus']
 
-num_of_frames = 100 # psi_plus.shape[-1] // 2
+num_of_frames = psi_plus.shape[-1] // 2
 
 # Set up figure
-fig, ax = plt.subplots(1, 2, figsize=(5 * 2, 4), sharey=True)
+fig, ax = plt.subplots(1, 3, figsize=(5 * 2, 4), sharey=True)
 for axis in ax:
     axis.set_aspect('equal')
     axis.set_xlabel(r'$x/\xi_s$')
 ax[0].set_ylabel(r'$y/\xi_s$')
 ax[0].set_title(r'$|\vec{F}|$')
 ax[1].set_title(r'Angle($F_\perp$)')
+ax[2].set_title(r'$F_z$')
 
 # Do initial plot
 print('Performing initial plot...')
@@ -48,10 +50,16 @@ F_perp = fx + 1j * fy
 
 F_plot = ax[0].pcolorfast(X, Y, abs(F), vmin=0, vmax=1, cmap='jet')
 spin_angle_plot = ax[1].pcolorfast(X, Y, np.angle(F_perp.real), vmin=-np.pi, vmax=np.pi, cmap='jet')
-plt.colorbar(F_plot, ax=ax[0], fraction=0.042)
+fz_plot = ax[2].pcolorfast(X, Y, fz, vmin=-1, vmax=1, cmap='jet')
+
+# Set color bars
+F_plot_cbar = plt.colorbar(F_plot, ax=ax[0], fraction=0.042)
 spin_angle_cbar = plt.colorbar(spin_angle_plot, ax=ax[1], fraction=0.042)
 spin_angle_cbar.set_ticks([-np.pi, 0, np.pi])
 spin_angle_cbar.set_ticklabels([r'$-\pi$', '0', r'$\pi$'])
+fz_cbar = plt.colorbar(fz_plot, ax=ax[2], fraction=0.042)
+fz_cbar.set_ticks([-1, 1])
+fz_cbar.set_ticklabels(['-1', '1'])
 
 print('Creating animation')
 anim = animation.FuncAnimation(fig, animate, frames=num_of_frames)
