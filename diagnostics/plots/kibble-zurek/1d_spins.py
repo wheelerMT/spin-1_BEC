@@ -46,7 +46,7 @@ for i in range(num_of_frames):
 
 # Set up plots
 print('Setting up figure environment...')
-fig, ax = plt.subplots(2, 1, sharex=True)
+fig, ax = plt.subplots(3, 1, sharex=True)
 for axis in ax:
     axis.set_ylabel(r'$x/\xi_s$')
     if axis == ax[0]:
@@ -55,16 +55,16 @@ for axis in ax:
         axis.set_title(r'Angle$(F_{perp})$')
     # if axis == ax[2]:
     #     axis.set_title(r'$\theta$')
-    # if axis == ax[3]:
-    #     axis.set_title(r'$F_z$')
-    #     axis.set_xlabel(r'$t/\tau$')
+    if axis == ax[2]:
+        axis.set_title(r'$F_z$')
+        axis.set_xlabel(r'$t/\tau$')
 
 # Plot the results
 print('Plotting results...')
 F_plot = ax[0].pcolormesh(time, X, spacetime_F, vmin=0, vmax=1, shading='auto', cmap='jet')
 F_perp_plot = ax[1].pcolormesh(time, X, spacetime_F_perp, vmin=-np.pi, vmax=np.pi, shading='auto')
 # theta_plot = ax[2].pcolormesh(time, X, spacetime_theta, vmin=-np.pi, vmax=np.pi, shading='auto')
-# Fz_plot = ax[3].pcolormesh(time, X, spacetime_Fz, vmin=-1, vmax=1, shading='auto')
+Fz_plot = ax[2].pcolormesh(time, X, spacetime_Fz, vmin=-1, vmax=1, shading='auto')
 print('Results plotted!')
 
 # Set up cbars
@@ -75,9 +75,9 @@ F_perp_cbar.set_ticklabels([r'-$\pi$', '0', r'$\pi$'])
 # theta_cbar = plt.colorbar(theta_plot, ax=ax[2])
 # theta_cbar.set_ticks([-np.pi, 0, np.pi])
 # theta_cbar.set_ticklabels([r'-$\pi$', '0', r'$\pi$'])
-# Fz_cbar = plt.colorbar(Fz_plot, ax=ax[3])
-# Fz_cbar.set_ticks([-1, 1])
-# Fz_cbar.set_ticklabels(['-1', '1'])
+Fz_cbar = plt.colorbar(Fz_plot, ax=ax[2])
+Fz_cbar.set_ticks([-1, 1])
+Fz_cbar.set_ticklabels(['-1', '1'])
 
 print('Saving image...')
 plt.savefig('../../images/{}_spins.png'.format(filename))
