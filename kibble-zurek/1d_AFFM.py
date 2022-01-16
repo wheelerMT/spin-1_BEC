@@ -70,6 +70,7 @@ with h5py.File(data_path, 'w') as data:
     data.create_dataset('time/Nt', data=Nt)
     data.create_dataset('time/dt', data=dt)
     data.create_dataset('time/Nframe', data=Nframe)
+    data.create_dataset('time/t', (1, 1), maxshape=(None, 1), dtype='float64')
 
     # Creating empty wavefunction datasets to store data:
     data.create_dataset('wavefunction/psi_plus', (Nx, 1), maxshape=(Nx, None), dtype='complex64')
@@ -98,26 +99,6 @@ for i in range(Nt):
 
     sm.fourier_space_1d(psi_plus_k, psi_0_k, psi_minus_k, dt, Kx, q)
 
-    # psi_plus = cp.fft.ifft(psi_plus_k)
-    # psi_0 = cp.fft.ifft(psi_0_k)
-    # psi_minus = cp.fft.ifft(psi_minus_k)
-    #
-    # atom_num_new_plus = dx * cp.sum(cp.abs(psi_plus) ** 2)
-    # atom_num_new_0 = dx * cp.sum(cp.abs(psi_0) ** 2)
-    # atom_num_new_minus = dx * cp.sum(cp.abs(psi_minus) ** 2)
-    #
-    # atom_num_new = atom_num_new_minus + atom_num_new_0 + atom_num_new_plus
-    #
-    # psi_plus *= cp.sqrt(atom_num / atom_num_new)
-    # psi_0 *= cp.sqrt(atom_num / atom_num_new)
-    # psi_minus *= cp.sqrt(atom_num / atom_num_new)
-    #
-    # psi_plus_k = cp.fft.fft(psi_plus)
-    # psi_0_k = cp.fft.fft(psi_0)
-    # psi_minus_k = cp.fft.fft(psi_minus)
-
-    # sm.renorm_mag(cp.fft.ifft(psi_plus_k), cp.fft.ifft(psi_0_k), cp.fft.ifft(psi_minus_k), target_mag)
-
     # Increase p linearly until we meet threshold
     if p < p_final:
         p = p_final * t / quench_time
@@ -137,6 +118,10 @@ for i in range(Nt):
             new_psi_minus = data['wavefunction/psi_minus']
             new_psi_minus.resize((Nx, k + 1))
             new_psi_minus[:, k] = cp.asnumpy(cp.fft.ifft(psi_minus_k))
+
+            time_array = data['time/t']
+            time_array.resize((k + 1, 1))
+            time_array[k, 0] = t
 
         k += 1  # Increment array index
 

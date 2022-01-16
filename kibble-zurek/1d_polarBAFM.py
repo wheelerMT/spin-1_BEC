@@ -54,6 +54,7 @@ with h5py.File(data_path, 'w') as data:
     data.create_dataset('time/dt', data=dt)
     data.create_dataset('time/Nframe', data=Nframe)
     data.create_dataset('time/N_steps', data=N_steps)
+    data.create_dataset('time/t', (1, 1), maxshape=(None, 1), dtype='float64')
 
     # Creating empty wavefunction datasets to store data:
     data.create_dataset('wavefunction/psi_plus', (Nx, 1), maxshape=(Nx, None), dtype='complex64')
@@ -101,6 +102,10 @@ for i in range(Nt):
             new_psi_minus = data['wavefunction/psi_minus']
             new_psi_minus.resize((Nx, k + 1))
             new_psi_minus[:, k] = cp.asnumpy(cp.fft.ifft(psi_minus_k))
+
+            time_array = data['time/t']
+            time_array.resize((k + 1, 1))
+            time_array[k, 0] = t
 
         k += 1  # Increment array index
 
