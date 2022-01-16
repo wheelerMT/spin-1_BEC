@@ -1,85 +1,84 @@
 import h5py
 import numpy as np
 
-"""File that calculates certain correlation functions and lengths from a given dataset and saves to a new dataset."""
+"""File that calculates certain correlation functions from a given dataset and saves to a new dataset."""
 
 # Import data:
 filename = input('Enter filename: ')
-data_path = '../data/{}.hdf5'.format(filename)
+data_path = '../../scratch/data/spin-1/kibble-zurek/{}.hdf5'.format(filename)
 data_file = h5py.File(data_path, 'r')
 
 # Loading grid array data:
-x, y = data_file['grid/x'][:], data_file['grid/y'][:]
-X, Y = np.meshgrid(x[:], y[:])
+x, y = data_file['grid/x'], data_file['grid/y']
+X, Y = np.meshgrid(x[:], y[:], indexing='ij')
 Nx, Ny = x[:].size, y[:].size
 dx, dy = x[1] - x[0], y[1] - y[0]
-dkx, dky = 2 * np.pi / (Nx * dx), 2 * np.pi / (Ny * dy)
+dkx, dky = np.pi / (Nx / 2 * dx), np.pi / (Ny / 2 * dy)
 kxx = np.arange(-Nx // 2, Nx // 2) * dkx
 kyy = np.arange(-Nx // 2, Nx // 2) * dky
-Kx, Ky = np.meshgrid(kxx, kyy)
+Kx, Ky = np.meshgrid(kxx, kyy, indexing='ij')
 
 # Three component wavefunction
-psi_plus = data_file['wavefunction/psi_plus']
-psi_0 = data_file['wavefunction/psi_0']
-psi_minus = data_file['wavefunction/psi_minus']
-n_0 = 1.6e9 / (Nx * Ny)  # Background density
+psi_plus_data = data_file['wavefunction/psi_plus']
+psi_0_data = data_file['wavefunction/psi_0']
+psi_minus_data = data_file['wavefunction/psi_minus']
 
-num_of_frames = psi_plus.shape[-1]
-frame_start = 0
+n_0 = np.sum(abs(psi_plus_data[:, :, 0]) ** 2 + abs(psi_0_data[:, :, 0]) ** 2 + abs(psi_minus_data[:, :, 0]) ** 2) \
+      / (Nx * Ny)
 
-# Calculate phase OP:
-integral_phase = np.empty((Nx, Ny, num_of_frames - frame_start))
-for i in range(frame_start, num_of_frames):
-    alpha_perp = np.fft.fft2(-2 * psi_plus[:, :, i] * psi_minus[:, :, i])
-    integral_phase[:, :, i - frame_start] = np.fft.fftshift(1 / (n_0 * Nx) ** 2 * np.fft.ifft2(alpha_perp * np.conj(alpha_perp))).real
-    integral_phase[:, :, i] = np.where(integral_phase[:, :, i] < 0, 0, integral_phase[:, :, i])
+num_of_frames = psi_plus_data.shape[-1]
 
-# Calculate nematic OP:
-integral_nematic = np.empty((Nx, Ny, num_of_frames))
-for i in range(frame_start, num_of_frames):
-    q_xx_k = np.fft.fft2(np.real(np.conj(psi_plus[:, :, i]) * psi_minus[:, :, i]))
-    q_xy_k = np.fft.fft2(np.imag(np.conj(psi_plus[:, :, i]) * psi_minus[:, :, i]))
-    integral_nematic[:, :, i - frame_start] = np.fft.fftshift(4 / (n_0 * Nx) ** 2 * np.fft.ifft2(q_xx_k * np.conj(q_xx_k) + q_xy_k * np.conj(q_xy_k))).real
-    integral_nematic[:, :, i] = np.where(integral_nematic[:, :, i] < 0, 0, integral_nematic[:, :, i])
-
-data_file.close()
-
+# Calculate quantities for angle integration
 box_radius = int(np.ceil(np.sqrt(Nx ** 2 + Ny ** 2) / 2) + 1)
-centerx = Nx // 2
-centery = Ny // 2
+center_x = Nx // 2
+center_y = Ny // 2
 
-# Generate data file:
+# Generate correlations data file:
 corr_file = '{}_corr'.format(filename)
-corr_data = h5py.File('../data/{}.hdf5'.format(corr_file), 'w')
-g_theta = corr_data.create_dataset('g_theta', (box_radius, num_of_frames - frame_start))
-g_phi = corr_data.create_dataset('g_phi', (box_radius, num_of_frames - frame_start))
+corr_data_path = '../../scratch/data/spin-1/kibble-zurek/correlations/{}.hdf5'.format(corr_file)
+with h5py.File(corr_data_path, 'w') as corr_data:
+    corr_data.create_dataset('g_theta', (box_radius, 1), maxshape=(box_radius, None))
+    corr_data.create_dataset('g_phi', (box_radius, 1), maxshape=(box_radius, None))
+k = 0
 
-# Sum over the angle:
-print('Calculating angular average...')
-for frame in range(num_of_frames - frame_start):
-    angle_sum = np.zeros(box_radius, )
+# Calculate mass and spin OPs
+for i in range(0, num_of_frames, 4):
+    print('On frame {} out of {}'.format(i, num_of_frames))
+
+    # Load in 2D wfn
+    psi_plus, psi_0, psi_minus = psi_plus_data[:, :, i], psi_0_data[:, :, i], psi_minus_data[:, :, i]
+
+    # Calculate mass OP
+    alpha_perp = np.fft.fft2(-2 * psi_plus * psi_minus)
+    alpha_perp_int = np.fft.fftshift(1 / (n_0 * Nx * dx) ** 2 * np.fft.ifft2(alpha_perp * np.conj(alpha_perp))).real
+    alpha_perp_int = np.where(alpha_perp_int < 0, 0, alpha_perp_int)
+
+    # Calculate spin OP
+    conj_psi = np.conj(psi_plus) * psi_minus
+    q_xx_k = np.fft.fft2(np.real(conj_psi))
+    q_xy_k = np.fft.fft2(np.imag(conj_psi))
+    Q_int = np.fft.fftshift(4 / (n_0 * Nx * dx) ** 2 * np.fft.ifft2(q_xx_k * np.conj(q_xx_k) + q_xy_k * np.conj(q_xy_k))).real
+    Q_int = np.where(Q_int < 0, 0, Q_int)
+
+    # Do angular integration
+    angle_theta = np.zeros(box_radius, )
+    angle_phi = np.zeros(box_radius, )
     nc = np.zeros(box_radius, )
-    print('On frame {}.'.format(frame + 1))
-    for i in range(Nx):
-        for j in range(Ny):
-            r = int(np.ceil(np.sqrt((i - centerx) ** 2 + (j - centery) ** 2)))
-            nc[r] += 1
-            angle_sum[r] += integral_phase[i, j, frame]
-    angle_sum /= nc
-    g_theta[:, frame] = angle_sum
 
-# Sum over the angle:
-print('Calculating angular average...')
-for frame in range(num_of_frames - frame_start):
-    angle_sum = np.zeros(box_radius, )
-    nc = np.zeros(box_radius, )
-    print('On frame {}.'.format(frame + 1))
-    for i in range(Nx):
-        for j in range(Ny):
-            r = int(np.ceil(np.sqrt((i - centerx) ** 2 + (j - centery) ** 2)))
+    for ii in range(Nx):
+        for jj in range(Ny):
+            r = int(np.ceil(np.sqrt((ii - center_x) ** 2 + (jj - center_y) ** 2)))
             nc[r] += 1
-            angle_sum[r] += integral_nematic[i, j, frame]
-    angle_sum /= nc
-    g_phi[:, frame] = angle_sum
+            angle_theta[r] += alpha_perp_int[ii, jj]
+            angle_phi[r] += Q_int[ii, jj]
 
-corr_data.close()
+    with h5py.File(corr_data_path, 'r+') as new_data:
+        g_theta = new_data['g_theta']
+        g_theta.resize((box_radius, k + 1))
+        g_theta[:, k] = angle_theta / nc
+
+        g_phi = new_data['g_phi']
+        g_phi.resize((box_radius, k + 1))
+        g_phi[:, k] = angle_phi / nc
+
+    k += 1
