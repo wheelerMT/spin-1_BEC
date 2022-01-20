@@ -5,9 +5,9 @@ import include.symplectic_cpu as sm
 # --------------------------------------------------------------------------------------------------------------------
 # Spatial and Potential parameters:
 # --------------------------------------------------------------------------------------------------------------------
-Nx = 2048
+Nx = 4096
 Mx = Nx // 2
-dx = 78 / Nx  # Grid spacing
+dx = 0.125  # Grid spacing
 dkx = np.pi / (Mx * dx)
 len_x = Nx * dx  # Box length
 X = np.arange(-Mx, Mx) * dx
@@ -16,7 +16,7 @@ Kx = np.arange(-Mx, Mx) * dkx
 Kx = np.fft.fftshift(Kx)
 
 # Framework for wavefunction data
-n_0 = 1. / len_x
+n_0 = 1.
 psi_plus = (np.random.normal(0, 1e-4, Nx) + 1j * np.random.normal(0, 1e-4, Nx)) / np.sqrt(Nx)
 psi_0 = np.sqrt(n_0) + (np.random.normal(0, 1e-4, Nx) + 1j * np.random.normal(0, 1e-4, Nx)) / np.sqrt(Nx)
 psi_minus = (np.random.normal(0, 1e-4, Nx) + 1j * np.random.normal(0, 1e-4, Nx)) / np.sqrt(Nx)
@@ -29,12 +29,12 @@ psi_minus_k = np.fft.fft(psi_minus)
 # Controlled variables
 V = 0.  # Doubly periodic box
 p = 0  # Linear Zeeman
-tau_q = 5  # Time when q=-q_init (dimensionless units)
-c0 = 1.4e5
-c2 = -500
+tau_q = 100  # Time when q=-q_init (dimensionless units)
+c0 = 114
+c2 = -0.5
 
 # Time steps, number and wavefunction save variables
-dt = 5e-5  # Time step
+dt = 1e-3  # Time step
 Nframe = 1000  # Number of frames of data
 Q_init = 2.5
 t = -Q_init * tau_q  # Choose this so Q_init = 2.5
