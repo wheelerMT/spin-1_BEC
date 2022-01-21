@@ -7,7 +7,7 @@ import include.symplectic_cpu as sm
 # --------------------------------------------------------------------------------------------------------------------
 Nx = 4096
 Mx = Nx // 2
-dx = 0.125  # Grid spacing
+dx = 0.25  # Grid spacing
 dkx = np.pi / (Mx * dx)
 len_x = Nx * dx  # Box length
 X = np.arange(-Mx, Mx) * dx
@@ -29,8 +29,8 @@ psi_minus_k = np.fft.fft(psi_minus)
 # Controlled variables
 V = 0.  # Doubly periodic box
 p = 0  # Linear Zeeman
-tau_q = 100  # Time when q=-q_init (dimensionless units)
-c0 = 114
+tau_q = 500  # Time when q=-q_init (dimensionless units)
+c0 = 10
 c2 = -0.5
 
 # Time steps, number and wavefunction save variables
