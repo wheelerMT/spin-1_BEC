@@ -18,6 +18,12 @@ for quench in quenches:
                 except (OSError, ValueError, RuntimeError):
                     pass
 
+                try:
+                    master_file.create_dataset(f'{quench}/time/t', data=run_file['time/t'][...])
+                    master_file.create_dataset(f'{quench}/time/N_steps', data=run_file['time/N_steps'][...])
+                except (OSError, ValueError, RuntimeError):
+                    pass
+
                 # Save wavefunction data
                 master_file.create_dataset(f'{quench}/run{run}/wavefunction/psi_plus',
                                            data=run_file['wavefunction/psi_plus'])
