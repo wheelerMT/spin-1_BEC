@@ -1,6 +1,5 @@
 import numpy as np
 import h5py
-import pyfftw
 import include.symplectic_cpu as sm
 import sys
 
@@ -17,29 +16,15 @@ X = np.arange(-Mx, Mx) * dx
 Kx = np.arange(-Mx, Mx) * dkx
 Kx = np.fft.fftshift(Kx)
 
-# Framework for wavefunction FFTs
-psi_plus = pyfftw.empty_aligned(Nx, dtype='complex64')
-psi_0 = pyfftw.empty_aligned(Nx, dtype='complex64')
-psi_minus = pyfftw.empty_aligned(Nx, dtype='complex64')
-psi_plus_k = pyfftw.empty_aligned(Nx, dtype='complex64')
-psi_0_k = pyfftw.empty_aligned(Nx, dtype='complex64')
-psi_minus_k = pyfftw.empty_aligned(Nx, dtype='complex64')
-fft_plus = pyfftw.builders.fft(psi_plus)
-fft_0 = pyfftw.builders.fft(psi_0)
-fft_minus = pyfftw.builders.fft(psi_minus)
-ifft_plus = pyfftw.builders.ifft(psi_plus)
-ifft_0 = pyfftw.builders.ifft(psi_0)
-ifft_minus = pyfftw.builders.ifft(psi_minus)
-
 # Set wavefunction
 n_0 = 1.  # Background density
-psi_plus[:] = ((np.random.normal(0, 0.5, Nx) + 1j * np.random.normal(0, 0.5, Nx)) / np.sqrt(Nx)).astype('complex64')
-psi_0[:] = np.sqrt(n_0) * np.ones(Nx, dtype='complex64')
-psi_minus[:] = ((np.random.normal(0, 0.5, Nx) + 1j * np.random.normal(0, 0.5, Nx)) / np.sqrt(Nx)).astype('complex64')
+psi_plus = (np.random.normal(0, 1e-4, Nx) + 1j * np.random.normal(0, 1e-4, Nx)) / np.sqrt(Nx)
+psi_0 = np.sqrt(n_0) + (np.random.normal(0, 1e-4, Nx) + 1j * np.random.normal(0, 1e-4, Nx)) / np.sqrt(Nx)
+psi_minus = (np.random.normal(0, 1e-4, Nx) + 1j * np.random.normal(0, 1e-4, Nx)) / np.sqrt(Nx)
 
-psi_plus_k[:] = fft_plus(psi_plus)
-psi_0_k[:] = fft_plus(psi_0)
-psi_minus_k[:] = fft_plus(psi_minus)
+psi_plus_k = np.fft.fft(psi_plus)
+psi_0_k = np.fft.fft(psi_0)
+psi_minus_k = np.fft.fft(psi_minus)
 
 # Controlled variables
 V = 0.  # Doubly periodic box
@@ -53,51 +38,36 @@ run_num = int(sys.argv[-1])
 
 dt = 1e-3  # Time step
 Nframe = 1000  # Number of frames of data
-t = -0.5 * tau_q  # Choose this so Q_init = 2.5
-Q_init = 2 - t / tau_q
+Q_init = 2.5
+t = -Q_init * tau_q  # Choose this so Q_init = 2.5
 Q = Q_init
-Nt = int(2 * Q_init * tau_q / dt)
+Nt = int(2 * Q_init * tau_q / dt)  # 1.5 is to extend beyond when Q = -Q_init
 N_steps = Nt // Nframe  # Saves data every N_steps
 k = 0  # Array index
 
 filename = f'1d_polar-BA-FM_{run_num}'  # Name of file to save data to
 data_path = f'../scratch/data/spin-1/kibble-zurek/ensembles/tau_q={tau_q}/{filename}.hdf5'
 
-with h5py.File(data_path, 'a') as data:
-    try:
-        # Saving spatial data:
-        data.create_dataset('grid/x', X.shape, data=X)
+with h5py.File(data_path, 'w') as data:
+    # Saving spatial data:
+    data.create_dataset('grid/x', X.shape, data=X)
 
-        # Saving time variables:
-        data.create_dataset('time/dt', data=dt)
-        data.create_dataset('time/Nframe', data=Nframe)
-
-    except (ValueError, OSError, RuntimeError):
-        print('Datasets already exist, skipping...')
-
-    try:
-        # Save variable time data
-        data.create_dataset('{}/time/Nt'.format(tau_q), data=Nt)
-        data.create_dataset('{}/time/N_steps'.format(tau_q), data=N_steps)
-
-    except (ValueError, OSError, RuntimeError):
-        print('Datasets already exist, skipping...')
+    # Saving time variables:
+    data.create_dataset('time/dt', data=dt)
+    data.create_dataset('time/Nframe', data=Nframe)
+    data.create_dataset('time/Nt', data=Nt)
+    data.create_dataset('time/N_steps', data=N_steps)
+    data.create_dataset('time/t', (1, 1), maxshape=(None, 1), dtype='float64')
 
     # Creating empty wavefunction datasets to store data:
-    data.create_dataset('wavefunction/psi_plus'.format(tau_q, run_num), (Nx, 1), maxshape=(Nx, None),
-                        dtype='complex64')
-    data.create_dataset('wavefunction/psi_0'.format(tau_q, run_num), (Nx, 1), maxshape=(Nx, None),
-                        dtype='complex64')
-    data.create_dataset('wavefunction/psi_minus'.format(tau_q, run_num), (Nx, 1), maxshape=(Nx, None),
-                        dtype='complex64')
+    data.create_dataset('wavefunction/psi_plus', (Nx, 1), maxshape=(Nx, None), dtype='complex64')
+    data.create_dataset('wavefunction/psi_0', (Nx, 1), maxshape=(Nx, None), dtype='complex64')
+    data.create_dataset('wavefunction/psi_minus', (Nx, 1), maxshape=(Nx, None), dtype='complex64')
 
     # Saving initial state:
-    data.create_dataset('initial_state/psi_plus'.format(tau_q, run_num),
-                        data=psi_plus)
-    data.create_dataset('initial_state/psi_0'.format(tau_q, run_num),
-                        data=psi_0)
-    data.create_dataset('initial_state/psi_minus'.format(tau_q, run_num),
-                        data=psi_minus)
+    data.create_dataset('initial_state/psi_plus', data=psi_plus)
+    data.create_dataset('initial_state/psi_0', data=psi_0)
+    data.create_dataset('initial_state/psi_minus', data=psi_minus)
 
 # --------------------------------------------------------------------------------------------------------------------
 # Real time evolution
@@ -106,13 +76,13 @@ for i in range(Nt):
 
     sm.fourier_space_KZ_1d(psi_plus_k, psi_0_k, psi_minus_k, dt, Kx, Q, c2, n_0, tau_q, sign=-1)
 
-    psi_plus, psi_0, psi_minus = ifft_plus(psi_plus_k), ifft_0(psi_0_k), ifft_minus(psi_minus_k)
+    psi_plus, psi_0, psi_minus = np.fft.ifft(psi_plus_k), np.fft.ifft(psi_0_k), np.fft.ifft(psi_minus_k)
 
     F_perp, Fz, C, S, n = sm.calc_spin_dens(psi_plus, psi_0, psi_minus, dt, c2)
 
     psi_plus, psi_0, psi_minus = sm.interaction_flow(psi_plus, psi_0, psi_minus, C, S, Fz, F_perp, dt, V, p, c0, n)
 
-    psi_plus_k, psi_0_k, psi_minus_k = fft_plus(psi_plus), fft_0(psi_0), fft_minus(psi_minus)
+    psi_plus_k, psi_0_k, psi_minus_k = np.fft.fft(psi_plus), np.fft.fft(psi_0), np.fft.fft(psi_minus)
 
     sm.fourier_space_KZ_1d(psi_plus_k, psi_0_k, psi_minus_k, dt, Kx, Q, c2, n_0, tau_q, sign=-1)
 
@@ -124,17 +94,21 @@ for i in range(Nt):
     if np.mod(i + 1, N_steps) == 0:
         # Updates file with new wavefunction values:
         with h5py.File(data_path, 'r+') as data:
-            new_psi_plus = data['wavefunction/psi_plus'.format(tau_q, run_num)]
+            new_psi_plus = data['wavefunction/psi_plus']
             new_psi_plus.resize((Nx, k + 1))
-            new_psi_plus[:, k] = ifft_plus(psi_plus_k)
+            new_psi_plus[:, k] = np.fft.ifft(psi_plus_k)
 
-            new_psi_0 = data['wavefunction/psi_0'.format(tau_q, run_num)]
+            new_psi_0 = data['wavefunction/psi_0']
             new_psi_0.resize((Nx, k + 1))
-            new_psi_0[:, k] = ifft_0(psi_0_k)
+            new_psi_0[:, k] = np.fft.ifft(psi_0_k)
 
-            new_psi_minus = data['wavefunction/psi_minus'.format(tau_q, run_num)]
+            new_psi_minus = data['wavefunction/psi_minus']
             new_psi_minus.resize((Nx, k + 1))
-            new_psi_minus[:, k] = ifft_minus(psi_minus_k)
+            new_psi_minus[:, k] = np.fft.ifft(psi_minus_k)
+
+            time_array = data['time/t']
+            time_array.resize((k + 1, 1))
+            time_array[k, 0] = t
 
         k += 1  # Increment array index
 
@@ -142,4 +116,3 @@ for i in range(Nt):
         print('t = {:2f}'.format(t))
 
     t += dt
-    i += 1
