@@ -13,9 +13,10 @@ for quench in quenches:
     nd_plus = []
     nd_minus = []
     for run in runs:
+        print(f'On quench {quench}, run {run}')
         domain_count_plus = 0
         domain_count_minus = 0
-        with h5py.File(f'../../scratch/data/spin-1/kibble-zurek/ensembles/tau_q={quench}/{quench_type}_{run}',
+        with h5py.File(f'../../scratch/data/spin-1/kibble-zurek/ensembles/tau_q={quench}/{quench_type}_{run}.hdf5',
                        'r') as data_file:
             psi_plus = data_file['wavefunction/psi_plus'][:, -1]
             psi_minus = data_file['wavefunction/psi_minus'][:, -1]
