@@ -43,7 +43,7 @@ def fourier_space_1d(wfn_plus, wfn_0, wfn_minus, dt, Kx, q):
     wfn_minus *= np.exp(-0.25 * 1j * dt * (Kx ** 2 + 2 * q))
 
 
-@njit
+@njit(parallel=True)
 def fourier_space_KZ_1d(wfn_plus, wfn_0, wfn_minus, dt, Kx, Q, c2, n_0, tau_q, sign):
     """Solves the kinetic energy and time-dependent quadratic Zeeman
     term in Fourier space."""
@@ -81,7 +81,7 @@ def fourier_space_KZ_2d(wfn_plus, wfn_0, wfn_minus, dt, Kx, Ky, Q, c2, n_0, tau_
         raise ValueError("parameter sign is not 1 or -1.")
 
 
-@njit
+@njit(parallel=True)
 def calc_spin_dens(wfn_plus, wfn_0, wfn_minus, dt, c2):
     """Calculates various quantities such as spin vectors, sin and cosine terms and the atomic density."""
     spin_perp = np.sqrt(2.) * (np.conj(wfn_plus) * wfn_0 + np.conj(wfn_0) * wfn_minus)
@@ -105,7 +105,7 @@ def transverse_mag(wfn_plus, wfn_0, wfn_minus, dx):
     return dx * np.sum(abs(spin_perp) ** 2 / dens)
 
 
-@njit
+@njit(parallel=True)
 def interaction_flow(wfn_plus, wfn_0, wfn_minus, C, S, Fz, F_perp, dt, V, p, c0, n):
     """Solves the interaction part of the flow."""
     new_wfn_plus = (C * wfn_plus - S * (Fz * wfn_plus + np.conj(F_perp) / np.sqrt(2) * wfn_0)) * np.exp(
