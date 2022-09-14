@@ -31,7 +31,7 @@ V = 0.  # Doubly periodic box
 p = 0  # Linear Zeeman
 c0 = 1.4e5
 c2 = -630
-q = 2.5 * abs(c2) * n  # Initial quadratic Zeeman
+q = 2.5 * abs(c2) * n_0  # Initial quadratic Zeeman
 quench_time = int(sys.argv[-1])
 run_num = 1  # Change this to int(sys.argv[-2]) for more runs
 
