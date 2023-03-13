@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
+plt.rcParams.update({"font.size": 16})
+
 k = np.linspace(-2.5, 2.5, 100)
 q = np.linspace(-2.5, 2.5, 100)
 K, q = np.meshgrid(k, q)
@@ -36,10 +38,24 @@ for axis in ax:
     axis.set_xlabel(r"$Q$")
 ax[0].set_ylabel(r"$\mathbf{k}$")
 
-plot_fz = ax[0].pcolormesh(q, K, E_fz.imag, vmin=0, vmax=1, shading="gouraud")
+plot_fz = ax[0].imshow(
+    E_fz.imag.T,
+    vmin=0,
+    vmax=1,
+    origin="upper",
+    extent=extent,
+    interpolation="gaussian",
+)
 ax[0].plot([0, 0], [-2.5, 0], "w--")
 
-plot_m = ax[1].pcolormesh(q, K, E_m.imag, vmin=0, vmax=1, shading="gouraud")
+plot_m = ax[1].imshow(
+    E_m.imag.T,
+    vmin=0,
+    vmax=1,
+    origin="upper",
+    extent=extent,
+    interpolation="gaussian",
+)
 ax[1].plot([-2, -2], [-2.5, 0], "w--")
 ax[1].plot([2, 2], [-2.5, 0], "w--")
 
@@ -50,5 +66,6 @@ divider = make_axes_locatable(ax[0])
 cax = divider.append_axes("right", size="5%", pad=0.05)
 cax.axis("off")
 
+plt.subplots_adjust(wspace=0.0)
 plt.savefig("../plots/spin-1/bogoliubov_energies.png", bbox_inches="tight")
 plt.show()
