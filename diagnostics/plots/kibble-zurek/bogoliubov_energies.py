@@ -67,5 +67,5 @@ cax = divider.append_axes("right", size="5%", pad=0.05)
 cax.axis("off")
 
 plt.subplots_adjust(wspace=0.0)
-plt.savefig("../plots/spin-1/bogoliubov_energies.png", bbox_inches="tight")
+plt.savefig("../plots/spin-1/bogoliubov_energies.pdf", bbox_inches="tight")
 plt.show()

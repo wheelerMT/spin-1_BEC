@@ -2,6 +2,8 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 
+plt.rcParams.update({"font.size": 16})
+
 diag_file = h5py.File("data/diagnostics/1d_BA-FM_n0_Q_a.hdf5", "r")
 
 quenches = [i for i in range(200, 1000, 100)] + [
@@ -32,4 +34,6 @@ ax.loglog(
     label=r"$\tau_Q^{-1/4}$",
 )
 ax.legend()
+
+plt.savefig("../plots/spin-1/Q_a_using_n0.pdf", bbox_inches="tight")
 plt.show()
