@@ -1,12 +1,13 @@
 import h5py
 import numpy as np
 
-quenches = [i for i in range(200, 1000, 100)]
+quenches = [i for i in range(200, 1000, 100)] + [
+    i for i in range(1000, 8500, 500)
+]
 runs = [i for i in range(1, 51)]
 filename_prefix = "1d_BA-FM"
 
 threshold = 0.01  # Percentage threshold difference
-
 
 path = "../../scratch/data/spin-1/kibble-zurek"
 diag_file = h5py.File(f"{path}/diagnostics/{filename_prefix}_n0_Q_a.hdf5", "w")
@@ -27,6 +28,7 @@ for quench in quenches:
             psi_0 = data_file["wavefunction/psi_0"]
             time = data_file["time/t"][:, 0]
             Q = -time / quench
+            Q[Q < -2] = 0
 
             analytical_n_0 = abs(0.5 * np.sqrt(2 + Q)) ** 2
             numerical_n_0 = (
@@ -34,12 +36,10 @@ for quench in quenches:
             )
 
             # Critical time index
-            try:
-                t_a_index = np.where(
-                    numerical_n_0 - analytical_n_0 > threshold
-                )[0][0]
-                Q_a.append(abs(Q[t_a_index]))
-            except IndexError:
-                continue
+            t_a_index = np.where(analytical_n_0 - numerical_n_0 > threshold)[
+                0
+            ][0]
+            print(f"Q_a = {abs(Q[t_a_index])}")
+            Q_a.append(abs(Q[t_a_index]))
 
     diag_file.create_dataset(f"{quench}/Q_a", data=Q_a)
