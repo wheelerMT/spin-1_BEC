@@ -1,18 +1,18 @@
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import ticker
 
 plt.rcParams.update({"font.size": 18})
 # Load in domain data
-ba_fm_domains = h5py.File("data/diagnostics/1d_BA-FM_domains.hdf5", "r")
+ba_fm_domains = h5py.File("../../../data/diagnostics/1d_BA-FM_domains.hdf5", "r")
 polar_ba_fm_domains = h5py.File(
-    "data/diagnostics/1d_polar-BA-FM_domains.hdf5", "r"
+    "../../../data/diagnostics/1d_polar-BA-FM_domains.hdf5", "r"
 )
 
 quenches = [i for i in range(200, 1000, 100)] + [
     i for i in range(1000, 8500, 500)
 ]
-print(polar_ba_fm_domains.keys())
 
 n_d_ens = []
 n_d_polar_ens = []
@@ -25,11 +25,13 @@ for quench in quenches:
     n_d_polar_ens.append(np.sum(polar_ba_fm_domains[f"{quench}/nd_total"]) / 6)
     n_d_polar_std.append(np.std(polar_ba_fm_domains[f"{quench}/nd_total"]))
 
-fig, ax = plt.subplots(1)
+fig, ax = plt.subplots(1, figsize=(6.4, 3.2))
 ax.set_ylabel(r"$N_d$")
 ax.set_xlabel(r"$\tau_Q$")
 ax.set_xscale("log")
 ax.set_yscale("log")
+ax.set_ylim(1.0e2, 3.4e2)
+
 ax.loglog(quenches, n_d_ens, "ko")
 ax.errorbar(quenches, n_d_ens, yerr=n_d_std, capsize=5, ecolor="k", fmt="none")
 ax.loglog(
@@ -38,9 +40,22 @@ ax.loglog(
     "k--",
     label=r"$\tau_Q^{-1/4}$",
 )
+ax.set_yticks([1e2, 2e2, 3e2])
+ax.set_yticklabels(['1', '2', '3'])
+formatter = ticker.ScalarFormatter(useMathText=True)
+formatter.set_scientific(True)
+formatter.set_powerlimits((-1, 1))
+ax.yaxis.set_major_formatter(formatter)
+ax.yaxis.set_minor_formatter(ticker.NullFormatter())
 ax.legend()
 
-axin = ax.inset_axes([0.09, 0.08, 0.40, 0.40])
+axin = ax.inset_axes([0.09, 0.135, 0.40, 0.40])
+axin.set_xscale("log")
+axin.set_yscale("log")
+axin.set_xlabel(r"$\tau_Q$", labelpad=-20, x=0.7)
+axin.set_ylabel(r"$N_d$", labelpad=-14)
+axin.set_ylim(0.91e2, 2e2)
+
 axin.loglog(quenches, n_d_polar_ens, "ko", markersize=4)
 axin.loglog(
     quenches[:12],
@@ -48,11 +63,9 @@ axin.loglog(
     "k--",
     label=r"$\tau_Q^{-1/4}$",
 )
-axin.tick_params(labelsize=12)
-axin.set_xlabel(r"$\tau_Q$", labelpad=-12, fontsize=12, x=0.7)
-axin.set_ylabel(r"$N_d$", labelpad=-14, fontsize=12)
-axin.set_ylim(0.91e2, 2e2)
-axin.set_yticks([1e2, 1.2e2, 1.4e2, 1.6e2, 1.8e2, 2e2])
-axin.set_yticklabels(["100", "", "", "", "", "200"])
-plt.savefig("../plots/spin-1/BA-FM_domains.pdf", bbox_inches="tight")
+axin.set_yticks([1e2, 2e2])
+axin.set_yticklabels(['1', '2'])
+axin.yaxis.set_major_formatter(formatter)
+axin.yaxis.set_minor_formatter(ticker.NullFormatter())
+plt.savefig("../../../../plots/spin-1/BA-FM_domains.pdf", bbox_inches="tight")
 plt.show()
