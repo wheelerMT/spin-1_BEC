@@ -2,7 +2,8 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import ticker
-
+plt.rcParams["text.usetex"] = True
+plt.rc("text.latex")
 plt.rcParams.update({"font.size": 18})
 # Load in domain data
 ba_fm_domains = h5py.File("../../../data/diagnostics/1d_BA-FM_domains.hdf5", "r")

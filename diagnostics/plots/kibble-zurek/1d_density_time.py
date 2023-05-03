@@ -1,7 +1,8 @@
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
-
+plt.rcParams["text.usetex"] = True
+plt.rc("text.latex")
 plt.rcParams.update({"font.size": 18})
 
 # Load in data:
@@ -45,6 +46,7 @@ fig, ax = plt.subplots(3, 1, figsize=(6.4, 3.2))
 for axis in ax:
     axis.set_ylim(-64, 64)
     axis.set_aspect('equal')
+    axis.tick_params(axis='y', labelsize=16)
     if axis == ax[0]:
         axis.set_xticks([])
     if axis == ax[1]:

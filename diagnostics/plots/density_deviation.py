@@ -1,7 +1,8 @@
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
-
+plt.rcParams["text.usetex"] = True
+plt.rc("text.latex")
 plt.rcParams.update({"font.size": 18})
 
 # Load in data
@@ -51,7 +52,7 @@ axin.set_ylim(0, 0.5)
 axin.set_xticks([-1, 1])
 axin.set_yticks([0, 0.5])
 axin.set_xlabel(r'$t/\tau_Q$', labelpad=-20)
-axin.set_ylabel(r'$N_1/L$', labelpad=-30)
+axin.set_ylabel(r'$N_1/L$', labelpad=-20)
 
 axin.plot(-Q, n_1_500_avg, 'dodgerblue')
 axin.plot(-Q, n_1_1000_avg, 'palevioletred')

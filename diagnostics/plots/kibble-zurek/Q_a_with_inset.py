@@ -2,7 +2,8 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import ticker
-
+plt.rcParams["text.usetex"] = True
+plt.rc("text.latex")
 plt.rcParams.update({"font.size": 16})
 
 diag_file = h5py.File("../../../data/diagnostics/1d_BA-FM_Q_a.hdf5", "r")
@@ -41,10 +42,6 @@ ax.loglog(
     label=r"$\tau_Q^{-1/4}$",
 )
 ax.set_ylim(1e-1, 1e-0)
-# formatter = ticker.ScalarFormatter(useMathText=True)
-# formatter.set_scientific(True)
-# formatter.set_powerlimits((-1, 1))
-# ax.yaxis.set_major_formatter(formatter)
 ax.yaxis.set_minor_formatter(ticker.NullFormatter())
 ax.legend()
 
