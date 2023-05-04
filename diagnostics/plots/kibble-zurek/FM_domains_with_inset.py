@@ -33,7 +33,7 @@ ax.set_xscale("log")
 ax.set_yscale("log")
 ax.set_ylim(1.0e2, 3.4e2)
 
-ax.loglog(quenches, n_d_ens, "ko")
+ax.loglog(quenches, n_d_ens, "ko", fillstyle='none', markersize=6)
 ax.errorbar(quenches, n_d_ens, yerr=n_d_std, capsize=5, ecolor="k", fmt="none")
 ax.loglog(
     quenches[:12],
@@ -54,10 +54,10 @@ axin = ax.inset_axes([0.09, 0.135, 0.40, 0.40])
 axin.set_xscale("log")
 axin.set_yscale("log")
 axin.set_xlabel(r"$\tau_Q$", labelpad=-20, x=0.7)
-axin.set_ylabel(r"$N_d$", labelpad=-14)
+axin.set_ylabel(r"$N_d$", labelpad=-3)
 axin.set_ylim(0.91e2, 2e2)
 
-axin.loglog(quenches, n_d_polar_ens, "ko", markersize=4)
+axin.loglog(quenches, n_d_polar_ens, "ko", fillstyle='none', markersize=5)
 axin.loglog(
     quenches[:12],
     710 * np.array(quenches[:12]) ** (-1 / 4),

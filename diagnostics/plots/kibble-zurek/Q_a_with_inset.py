@@ -34,7 +34,7 @@ ax.set_xlabel(r"$\tau_Q$")
 ax.set_xscale("log")
 ax.set_yscale("log")
 ax.errorbar(quenches, Q_a, yerr=Q_a_std, capsize=5, ecolor="k", fmt="none")
-ax.loglog(quenches, Q_a, "ko")
+ax.loglog(quenches, Q_a, "ko", fillstyle='none', markersize=6)
 ax.loglog(
     quenches,
     11.8 * np.array(quenches) ** (-1 / 2),
