@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-
+plt.rcParams["text.usetex"] = True
+plt.rc("text.latex")
 plt.rcParams.update({"font.size": 16})
 
 k = np.linspace(-2.5, 2.5, 100)
@@ -61,11 +62,13 @@ ax[1].plot([2, 2], [-2.5, 0], "w--")
 
 divider = make_axes_locatable(ax[1])
 cax = divider.append_axes("right", size="5%", pad=0.05)
-plt.colorbar(plot_m, cax=cax, orientation="vertical")
+cbar = plt.colorbar(plot_m, cax=cax, orientation="vertical")
+cbar.set_ticks([0, 1])
+cbar.set_label(r'$E(\mathbf{k})$', labelpad=-5)
 divider = make_axes_locatable(ax[0])
 cax = divider.append_axes("right", size="5%", pad=0.05)
 cax.axis("off")
 
 plt.subplots_adjust(wspace=0.0)
-plt.savefig("../plots/spin-1/bogoliubov_energies.pdf", bbox_inches="tight")
+plt.savefig("../../../../plots/spin-1/bogoliubov_energies.pdf", bbox_inches="tight")
 plt.show()
