@@ -39,7 +39,7 @@ ax.loglog(
     quenches,
     11.8 * np.array(quenches) ** (-1 / 2),
     "k--",
-    label=r"$\tau_Q^{-1/4}$",
+    label=r"$\tau_Q^{-1/2}$",
 )
 ax.set_ylim(1e-1, 1e-0)
 ax.yaxis.set_minor_formatter(ticker.NullFormatter())
