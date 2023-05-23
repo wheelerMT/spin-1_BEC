@@ -2,7 +2,7 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 plt.rcParams["text.usetex"] = True
-plt.rc("text.latex")
+plt.rc("text.latex", preamble=r"\usepackage{fourier}")
 plt.rcParams.update({"font.size": 18})
 
 # Load in data

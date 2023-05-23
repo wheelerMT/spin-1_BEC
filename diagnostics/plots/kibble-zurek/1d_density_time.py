@@ -2,7 +2,7 @@ import numpy as np
 import h5py
 import matplotlib.pyplot as plt
 plt.rcParams["text.usetex"] = True
-plt.rc("text.latex")
+plt.rc("text.latex", preamble=r"\usepackage{fourier}")
 plt.rcParams.update({"font.size": 18})
 
 # Load in data:
@@ -55,7 +55,7 @@ for axis in ax:
     if axis == ax[2]:
         axis.set_xlabel(r'$t/\tau$')
         axis.set_xticks([-990, 0, 1000, 2000])
-        axis.set_xticklabels(['-1000', '0', '1000', '2000'])
+        axis.set_xticklabels(['$-1000$', '$0$', '$1000$', '$2000$'])
 
 extent = time.min(), time.max(), X.min(), X.max()
 ax[0].imshow(spacetime_plus, extent=extent, vmin=0, vmax=n_0, aspect='auto',

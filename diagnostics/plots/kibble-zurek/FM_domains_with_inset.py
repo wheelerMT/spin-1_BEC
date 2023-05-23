@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 plt.rcParams["text.usetex"] = True
-plt.rc("text.latex")
+plt.rc("text.latex", preamble=r"\usepackage{fourier}")
 plt.rcParams.update({"font.size": 18})
 # Load in domain data
 ba_fm_domains = h5py.File("../../../data/diagnostics/1d_BA-FM_domains.hdf5", "r")
@@ -42,7 +42,7 @@ ax.loglog(
     label=r"$\tau_Q^{-1/4}$",
 )
 ax.set_yticks([1e2, 2e2, 3e2])
-ax.set_yticklabels(['1', '2', '3'])
+ax.set_yticklabels(['$1$', '$2$', '$3$'])
 formatter = ticker.ScalarFormatter(useMathText=True)
 formatter.set_scientific(True)
 formatter.set_powerlimits((-1, 1))
@@ -65,7 +65,7 @@ axin.loglog(
     label=r"$\tau_Q^{-1/4}$",
 )
 axin.set_yticks([1e2, 2e2])
-axin.set_yticklabels(['1', '2'])
+axin.set_yticklabels(['$1$', '$2$'])
 axin.yaxis.set_major_formatter(formatter)
 axin.yaxis.set_minor_formatter(ticker.NullFormatter())
 plt.savefig("../../../../plots/spin-1/BA-FM_domains.pdf", bbox_inches="tight")

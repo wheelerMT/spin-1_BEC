@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 plt.rcParams["text.usetex"] = True
-plt.rc("text.latex")
+plt.rc("text.latex", preamble=r"\usepackage{fourier}")
 plt.rcParams.update({"font.size": 16})
 
 diag_file = h5py.File("../../../data/diagnostics/1d_BA-FM_Q_a.hdf5", "r")
@@ -29,7 +29,7 @@ for quench in quenches:
     Q_a_std.append(np.std(Q_a_ens))
 
 fig, ax = plt.subplots(1, figsize=(6.4, 3.2))
-ax.set_ylabel(r"$Q_a$", labelpad=-30)
+ax.set_ylabel(r"$Q_a$", labelpad=-20)
 ax.set_xlabel(r"$\tau_Q$")
 ax.set_xscale("log")
 ax.set_yscale("log")
@@ -53,6 +53,6 @@ axin.set_ylim(0, 0.006)
 axin.set_yticks([0, 0.006])
 axin.ticklabel_format(axis='y', style='sci', scilimits=(0, 0), useMathText=True)
 axin.set_xlabel(r'$t/\tau_Q$', labelpad=-15)
-axin.set_ylabel(r'$|a_{\mathbf{k}, f_z}|$', labelpad=-7)
+axin.set_ylabel(r'$|a_{k, f_z}|$', labelpad=-7)
 plt.savefig("../../../../plots/spin-1/BA-FM_Qa_scaling.pdf", bbox_inches="tight")
 plt.show()
