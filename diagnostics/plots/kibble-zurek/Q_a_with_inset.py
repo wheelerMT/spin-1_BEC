@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker
 plt.rcParams["text.usetex"] = True
 plt.rc("text.latex", preamble=r"\usepackage{fourier}")
-plt.rcParams.update({"font.size": 16})
+plt.rcParams.update({"font.size": 18})
 
 diag_file = h5py.File("../../../data/diagnostics/1d_BA-FM_Q_a.hdf5", "r")
 quenches = [i for i in range(200, 1000, 100)] + [
