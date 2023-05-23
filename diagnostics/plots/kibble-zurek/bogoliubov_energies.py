@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 plt.rcParams["text.usetex"] = True
-plt.rc("text.latex")
+plt.rc("text.latex", preamble=r"\usepackage{txfonts}")
 plt.rcParams.update({"font.size": 16})
 
 k = np.linspace(-2.5, 2.5, 100)
@@ -37,7 +37,7 @@ fig, ax = plt.subplots(1, 2, sharey="all")
 for axis in ax:
     axis.set_aspect("equal", adjustable="box")
     axis.set_xlabel(r"$Q$")
-ax[0].set_ylabel(r"$\mathbf{k}$")
+ax[0].set_ylabel(r"$k$")
 
 plot_fz = ax[0].imshow(
     E_fz.imag.T,
@@ -48,6 +48,7 @@ plot_fz = ax[0].imshow(
     interpolation="gaussian",
 )
 ax[0].plot([0, 0], [-2.5, 0], "w--")
+ax[0].set_title(r'$E_{k, f_z}$', pad=9)
 
 plot_m = ax[1].imshow(
     E_m.imag.T,
@@ -59,12 +60,13 @@ plot_m = ax[1].imshow(
 )
 ax[1].plot([-2, -2], [-2.5, 0], "w--")
 ax[1].plot([2, 2], [-2.5, 0], "w--")
+ax[1].set_title(r'$E_{k, +}$', pad=9)
 
 divider = make_axes_locatable(ax[1])
 cax = divider.append_axes("right", size="5%", pad=0.05)
 cbar = plt.colorbar(plot_m, cax=cax, orientation="vertical")
 cbar.set_ticks([0, 1])
-cbar.set_label(r'$E(\mathbf{k})$', labelpad=-5)
+cbar.set_label(r'$E(k)$', labelpad=-5)
 divider = make_axes_locatable(ax[0])
 cax = divider.append_axes("right", size="5%", pad=0.05)
 cax.axis("off")
